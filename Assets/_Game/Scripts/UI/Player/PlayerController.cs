@@ -1,3 +1,4 @@
+using System;
 using Emergence.Gameplay.Player;
 using Emergence.UI.Input;
 using Emergence.WorldView;
@@ -5,40 +6,66 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using PlayerInput = Emergence.Gameplay.Player.PlayerInput;
 
 namespace Emergence.UI.Player
 {
     public sealed class PlayerController : MonoBehaviour
     {
+        [SerializeField] private InputActionReference moveAction;
+        [SerializeField] private InputActionReference interactAction;
         private World world;
         private Entity player;
-        private PlayerWorldView view;
+        private PlayerView view;
         private InputSettingsController inputs;
         private InputAction move;
         private InputAction interact;
+        private bool initialized;
 
-        public void Initialize(World targetWorld, Entity entity, PlayerWorldView worldView,
+        // 装配前不允许更新；初始化成功后才开启，无需逐帧判空。
+        private void Awake() { if (!initialized) enabled = false; }
+        private void OnEnable() { if (!initialized) enabled = false; }
+
+        public void Initialize(World targetWorld, Entity entity, PlayerView playerView,
             InputSettingsController inputSettings)
         {
-            Shutdown();
+            if (initialized) return;
+            enabled = false;
+            if (targetWorld == null || !targetWorld.IsCreated || !targetWorld.EntityManager.Exists(entity))
+                throw new ArgumentException(name + ": PlayerController requires a live player entity.");
+            if (playerView == null) throw new MissingReferenceException(name + ": PlayerView is required.");
+            if (inputSettings == null) throw new MissingReferenceException(name + ": inputSettings is required.");
+            if (moveAction == null) throw new MissingReferenceException(name + ": moveAction is required.");
+            if (interactAction == null) throw new MissingReferenceException(name + ": interactAction is required.");
+            var resolvedMove = inputSettings.GetAction(moveAction);
+            var resolvedInteract = inputSettings.GetAction(interactAction);
+            if (resolvedMove.expectedControlType != "Vector2" || resolvedMove.type == InputActionType.Button)
+                throw new InvalidOperationException(name + ": moveAction must provide Vector2 input.");
+            if (resolvedInteract.type != InputActionType.Button)
+                throw new InvalidOperationException(name + ": interactAction must be a Button action.");
+            var manager = targetWorld.EntityManager;
+            if (!manager.HasComponent<PlayerInputComponent>(entity) ||
+                !manager.HasComponent<PlayerPositionComponent>(entity) || !manager.HasComponent<PlayerMotionComponent>(entity))
+                throw new ArgumentException(name + ": player entity is missing required components.");
+            var form = PlayerSystem.GetForm(manager, entity);
+            playerView.Initialize(form);
             world = targetWorld;
             player = entity;
-            view = worldView;
+            view = playerView;
             inputs = inputSettings;
-            move = inputs.GetAction("Player/Move");
-            interact = inputs.GetAction("Player/Interact");
+            move = resolvedMove;
+            interact = resolvedInteract;
             interact.performed += OnInteract;
+            initialized = true;
+            view.Refresh(manager.GetComponentData<PlayerPositionComponent>(player), form,
+                manager.GetComponentData<PlayerMotionComponent>(player));
+            enabled = true;
         }
-
-        private bool HasPlayer => world != null && world.IsCreated && world.EntityManager.Exists(player);
 
         private void Update()
         {
-            if (!HasPlayer) return;
-            bool active = inputs != null && inputs.isActiveAndEnabled && !inputs.IsRebinding;
+            bool active = inputs.isActiveAndEnabled && !inputs.IsRebinding;
             Vector2 value = active ? move.ReadValue<Vector2>() : Vector2.zero;
-            var request = world.EntityManager.GetComponentData<PlayerInput>(player);
+            var request = world.EntityManager.GetComponentData<PlayerInputComponent>(player);
             request.Move = new float2(value.x, value.y);
             if (!active) request.InteractPressed = false;
             world.EntityManager.SetComponentData(player, request);
@@ -46,34 +73,35 @@ namespace Emergence.UI.Player
 
         private void OnInteract(InputAction.CallbackContext context)
         {
-            if (!HasPlayer || !isActiveAndEnabled || inputs == null ||
-                !inputs.isActiveAndEnabled || inputs.IsRebinding) return;
-            var request = world.EntityManager.GetComponentData<PlayerInput>(player);
+            if (!isActiveAndEnabled || !inputs.isActiveAndEnabled || inputs.IsRebinding) return;
+            var request = world.EntityManager.GetComponentData<PlayerInputComponent>(player);
             request.InteractPressed = true;
             world.EntityManager.SetComponentData(player, request);
         }
 
         private void LateUpdate()
         {
-            if (!HasPlayer || view == null) return;
             var manager = world.EntityManager;
-            view.Refresh(manager.GetComponentData<PlayerPosition>(player),
-                manager.GetComponentData<PlayerForm>(player).Value,
-                manager.GetComponentData<PlayerMotionState>(player));
+            view.Refresh(manager.GetComponentData<PlayerPositionComponent>(player),
+                PlayerSystem.GetForm(manager, player), manager.GetComponentData<PlayerMotionComponent>(player));
         }
 
-        private void ClearInput()
+        private void OnDisable()
         {
-            if (HasPlayer) world.EntityManager.SetComponentData(player, new PlayerInput());
+            // World 可能先于对象销毁；只在生命周期边界校验有效性。
+            if (initialized && world.IsCreated && world.EntityManager.Exists(player))
+                world.EntityManager.SetComponentData(player, new PlayerInputComponent());
         }
 
-        private void OnDisable() => ClearInput();
         private void OnDestroy() => Shutdown();
 
         public void Shutdown()
         {
-            if (interact != null) interact.performed -= OnInteract;
-            ClearInput();
+            enabled = false;
+            if (!initialized) return;
+            interact.performed -= OnInteract;
+            if (view != null) view.Shutdown();
+            initialized = false;
             move = null;
             interact = null;
             inputs = null;
