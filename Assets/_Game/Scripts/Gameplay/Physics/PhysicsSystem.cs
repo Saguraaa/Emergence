@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Emergence.Gameplay.Obstacle;
+using Emergence.Gameplay.Interaction;
 using Emergence.Gameplay.Player;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -19,6 +20,7 @@ namespace Emergence.Gameplay.Physics
         private readonly Dictionary<Entity, Body> bodies = new();
         private readonly Dictionary<Collider2D, Entity> entities = new();
         private readonly Dictionary<Entity, Collider2D> obstacles = new();
+        private readonly Dictionary<Entity, (Collider2D Collider, ContactFilter2D Filter)> interactions = new();
         private readonly List<RaycastHit2D> hits = new(16);
         private readonly List<Collider2D> overlaps = new(16);
 
@@ -66,10 +68,34 @@ namespace Emergence.Gameplay.Physics
             entities.Add(collider, entity);
         }
 
-        private static void ValidateCollider(Collider2D collider)
+        public void RegisterInteraction(Entity entity, Collider2D collider, LayerMask interactionLayers)
+        {
+            if (!EntityManager.Exists(entity) || !EntityManager.HasBuffer<InteractionOverlapComponent>(entity))
+                throw new ArgumentException("Physics interaction requires a live entity with InteractionOverlapComponent.");
+            ValidateCollider(collider, true);
+            if (collider.attachedRigidbody != null &&
+                (collider.attachedRigidbody.bodyType != RigidbodyType2D.Kinematic || !collider.attachedRigidbody.simulated))
+                throw new InvalidOperationException(collider.name + ": interaction Rigidbody2D must be simulated and Kinematic.");
+            if (interactionLayers.value == 0) throw new ArgumentException(collider.name + ": interactionLayers must not be empty.");
+            var filter = new ContactFilter2D { useTriggers = false };
+            filter.SetLayerMask(interactionLayers);
+            interactions.Add(entity, (collider, filter));
+            entities.Add(collider, entity);
+            collider.enabled = true;
+        }
+
+        public void UnregisterInteraction(Entity entity)
+        {
+            var collider = interactions[entity].Collider;
+            collider.enabled = false;
+            entities.Remove(collider);
+            interactions.Remove(entity);
+        }
+
+        private static void ValidateCollider(Collider2D collider, bool isTrigger = false)
         {
             if (collider == null) throw new MissingReferenceException("Physics registration requires Collider2D.");
-            if (collider.isTrigger) throw new InvalidOperationException(collider.name + ": blocking collider must not be a trigger.");
+            if (collider.isTrigger != isTrigger) throw new InvalidOperationException(collider.name + ": collider trigger setting is invalid.");
             Vector3 scale = collider.transform.lossyScale;
             if (!math.all(math.isfinite((float3)scale)) || scale.x <= 0 || scale.y <= 0 ||
                 !math.all(math.isfinite((float2)collider.offset)))
@@ -167,6 +193,17 @@ namespace Emergence.Gameplay.Physics
         protected override void OnUpdate()
         {
             Physics2D.SyncTransforms();
+            foreach (var (entity, range) in interactions)
+            {
+                var contacts = EntityManager.GetBuffer<InteractionOverlapComponent>(entity);
+                contacts.Clear();
+                range.Collider.Overlap(range.Filter, overlaps);
+                foreach (var other in overlaps)
+                {
+                    if (!entities.TryGetValue(other, out var target) || !bodies.ContainsKey(target)) continue;
+                    contacts.Add(new InteractionOverlapComponent { Entity = target });
+                }
+            }
             foreach (var (entity, body) in bodies)
             {
                 var contacts = EntityManager.GetBuffer<PhysicsContactComponent>(entity);

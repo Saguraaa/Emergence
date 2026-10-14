@@ -1,5 +1,6 @@
 using System;
 using Emergence.Gameplay.Physics;
+using Emergence.Gameplay.Interaction;
 using Emergence.Gameplay.Player;
 using Unity.Entities;
 
@@ -7,6 +8,7 @@ namespace Emergence.Gameplay.Obstacle
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     [UpdateAfter(typeof(PhysicsSystem))]
+    [UpdateAfter(typeof(InteractionSystem))]
     public partial class ObstacleSystem : SystemBase
     {
         private PhysicsSystem physics;
