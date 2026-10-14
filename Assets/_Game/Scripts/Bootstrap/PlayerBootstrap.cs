@@ -1,6 +1,7 @@
 using System;
 using Emergence.Gameplay.Environment;
 using Emergence.Gameplay.Player;
+using Emergence.Gameplay.Physics;
 using Emergence.UI.Input;
 using Emergence.UI.Player;
 using Emergence.WorldView;
@@ -20,11 +21,18 @@ namespace Emergence.Bootstrap
         [SerializeField] private PlayerView playerView;
         [SerializeField] private InputSettingsController inputSettings;
         [SerializeField, Min(0)] private float initialHeight;
+        [SerializeField] private Rigidbody2D physicsBody;
+        [SerializeField] private BoxCollider2D solidCollider;
+        [SerializeField] private CircleCollider2D liquidCollider;
+        [SerializeField] private CircleCollider2D gasCollider;
+        [SerializeField] private LayerMask collisionLayers;
+        private PhysicsSystem physics;
         private World world;
         private Entity player;
 
         public void Initialize()
         {
+            // 校验
             if (solidConfig == null) throw new MissingReferenceException(name + ": solidConfig is required.");
             if (liquidConfig == null) throw new MissingReferenceException(name + ": liquidConfig is required.");
             if (gasConfig == null) throw new MissingReferenceException(name + ": gasConfig is required.");
@@ -36,6 +44,10 @@ namespace Emergence.Bootstrap
             if (controller == null) throw new MissingReferenceException(name + ": controller is required.");
             if (playerView == null) throw new MissingReferenceException(name + ": playerView is required.");
             if (inputSettings == null) throw new MissingReferenceException(name + ": inputSettings is required.");
+            if (physicsBody == null) throw new MissingReferenceException(name + ": physicsBody is required.");
+            if (solidCollider == null) throw new MissingReferenceException(name + ": solidCollider is required.");
+            if (liquidCollider == null) throw new MissingReferenceException(name + ": liquidCollider is required.");
+            if (gasCollider == null) throw new MissingReferenceException(name + ": gasCollider is required.");
             if (!math.isfinite(initialHeight) || initialHeight < 0)
                 throw new InvalidOperationException(name + ": initialHeight must be finite and nonnegative.");
             if (!Enum.IsDefined(typeof(PlayerFormKind), initialForm))
@@ -43,13 +55,17 @@ namespace Emergence.Bootstrap
             world = World.DefaultGameObjectInjectionWorld;
             if (world == null || !world.IsCreated) throw new InvalidOperationException("Default ECS World is unavailable.");
             var manager = world.EntityManager;
+            physics = world.GetExistingSystemManaged<PhysicsSystem>();
+            if (physics == null) throw new InvalidOperationException("Default ECS World requires PhysicsSystem.");
             using var environmentQuery = manager.CreateEntityQuery(typeof(EnvironmentComponent));
             if (environmentQuery.CalculateEntityCount() != 1)
                 throw new InvalidOperationException("Initialize exactly one environment before the player.");
+            // 初始化
             player = manager.CreateEntity(typeof(PlayerTagComponent), typeof(PlayerInputComponent),
                 typeof(PlayerPositionComponent), typeof(PlayerMotionComponent), typeof(PlayerFormComponent),
                 typeof(PlayerSolidComponent), typeof(PlayerLiquidComponent), typeof(PlayerGasComponent));
             manager.SetName(player, "Player");
+            manager.AddBuffer<PhysicsContactComponent>(player);
             Vector3 spawn = playerView.transform.position;
             manager.SetComponentData(player, new PlayerPositionComponent
             {
@@ -60,6 +76,7 @@ namespace Emergence.Bootstrap
             manager.SetComponentData(player, liquidConfig.CreateComponent());
             manager.SetComponentData(player, gasConfig.CreateComponent());
             PlayerSystem.SetForm(manager, player, initialForm);
+            physics.RegisterBody(player, physicsBody, new Collider2D[] { solidCollider, liquidCollider, gasCollider }, collisionLayers);
             controller.Initialize(world, player, playerView, inputSettings);
         }
 
@@ -68,9 +85,13 @@ namespace Emergence.Bootstrap
             // 先停止 Controller 的逐帧访问，再销毁实体。
             if (controller != null) controller.Shutdown();
             if (world != null && world.IsCreated && player != Entity.Null)
+            {
+                physics.UnregisterBody(player);
                 world.EntityManager.DestroyEntity(player);
+            }
             player = Entity.Null;
             world = null;
+            physics = null;
         }
     }
 }

@@ -17,7 +17,9 @@ namespace Emergence.UI.Input
 
         public void Initialize()
         {
+            // 校验
             if (inputActions == null) throw new MissingReferenceException(name + ": inputActions is required.");
+            // 初始化
             runtimeActions = Instantiate(inputActions);
             LoadBindings();
             if (isActiveAndEnabled) runtimeActions.Enable();

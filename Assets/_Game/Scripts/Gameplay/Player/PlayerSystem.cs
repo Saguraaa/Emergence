@@ -1,5 +1,6 @@
 using System;
 using Emergence.Gameplay.Environment;
+using Emergence.Gameplay.Physics;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -8,10 +9,18 @@ namespace Emergence.Gameplay.Player
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     public partial class PlayerSystem : SystemBase
     {
+        private PhysicsSystem physics;
+
         protected override void OnCreate()
         {
             RequireForUpdate<PlayerTagComponent>();
             RequireForUpdate<EnvironmentComponent>();
+        }
+
+        protected override void OnStartRunning()
+        {
+            physics = World.GetExistingSystemManaged<PhysicsSystem>();
+            if (physics == null) throw new InvalidOperationException("PhysicsSystem must be initialized before player movement.");
         }
 
         // 仅在切换入口校验枚举值；读取形态直接读取 Component。
@@ -62,9 +71,10 @@ namespace Emergence.Gameplay.Player
                     default:
                         throw new InvalidOperationException("PlayerFormComponent contains an unsupported form.");
                 }
-                Integrate(ref position.ValueRW, ref motion.ValueRW, velocity,
+                var movement = physics.Move(entity, position.ValueRO.XY, velocity * dt, velocity, (int)form.ValueRO.Value);
+                position.ValueRW.XY += movement.Displacement;
+                Integrate(ref position.ValueRW, ref motion.ValueRW, movement.Velocity,
                     form.ValueRO.Value == PlayerFormKind.Gas, environment, dt);
-                input.ValueRW.InteractPressed = false;
             }
         }
 
@@ -77,7 +87,6 @@ namespace Emergence.Gameplay.Player
         private static void Integrate(ref PlayerPositionComponent position, ref PlayerMotionComponent motion,
             float2 velocity, bool gas, EnvironmentComponent environment, float dt)
         {
-            position.XY += velocity * dt;
             float verticalVelocity;
             if (gas)
             {

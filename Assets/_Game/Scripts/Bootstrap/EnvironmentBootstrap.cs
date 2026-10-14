@@ -16,6 +16,7 @@ namespace Emergence.Bootstrap
 
         public void Initialize()
         {
+            // 校验
             if (!math.all(math.isfinite((float3)windVelocity)) || !math.isfinite(gravity) || gravity < 0)
                 throw new InvalidOperationException(name + ": wind must be finite; gravity must be finite and nonnegative.");
             world = World.DefaultGameObjectInjectionWorld;
@@ -24,6 +25,7 @@ namespace Emergence.Bootstrap
             using var environmentQuery = manager.CreateEntityQuery(typeof(EnvironmentComponent));
             if (!environmentQuery.IsEmptyIgnoreFilter)
                 throw new InvalidOperationException("Only one environment owner is supported.");
+            // 初始化
             environment = manager.CreateEntity(typeof(EnvironmentComponent));
             manager.SetComponentData(environment, new EnvironmentComponent { WindVelocity = windVelocity, Gravity = gravity });
         }

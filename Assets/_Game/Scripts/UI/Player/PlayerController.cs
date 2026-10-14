@@ -19,15 +19,11 @@ namespace Emergence.UI.Player
         private InputSettingsController inputs;
         private InputAction move;
         private InputAction interact;
-        private bool initialized;
-
-        // 装配前不允许更新；初始化成功后才开启，无需逐帧判空。
-        private void Awake() { if (!initialized) enabled = false; }
-        private void OnEnable() { if (!initialized) enabled = false; }
 
         public void Initialize(World targetWorld, Entity entity, PlayerView playerView,
             InputSettingsController inputSettings)
         {
+            // 校验
             enabled = false;
             if (targetWorld == null || !targetWorld.IsCreated || !targetWorld.EntityManager.Exists(entity))
                 throw new ArgumentException(name + ": PlayerController requires a live player entity.");
@@ -46,6 +42,7 @@ namespace Emergence.UI.Player
                 !manager.HasComponent<PlayerPositionComponent>(entity) || !manager.HasComponent<PlayerMotionComponent>(entity) ||
                 !manager.HasComponent<PlayerFormComponent>(entity))
                 throw new ArgumentException(name + ": player entity is missing required components.");
+            // 初始化
             var form = manager.GetComponentData<PlayerFormComponent>(entity).Value;
             playerView.Initialize(form);
             world = targetWorld;
@@ -55,7 +52,6 @@ namespace Emergence.UI.Player
             move = resolvedMove;
             interact = resolvedInteract;
             interact.performed += OnInteract;
-            initialized = true;
             view.Refresh(manager.GetComponentData<PlayerPositionComponent>(player), form,
                 manager.GetComponentData<PlayerMotionComponent>(player));
             enabled = true;
@@ -89,7 +85,7 @@ namespace Emergence.UI.Player
         private void OnDisable()
         {
             // World 可能先于对象销毁；只在生命周期边界校验有效性。
-            if (initialized && world.IsCreated)
+            if (world != null && world.IsCreated && player != Entity.Null)
                 world.EntityManager.SetComponentData(player, new PlayerInputComponent());
         }
 
@@ -97,9 +93,7 @@ namespace Emergence.UI.Player
         public void Shutdown()
         {
             enabled = false;
-            if (!initialized) return;
-            interact.performed -= OnInteract;
-            initialized = false;
+            if (interact != null) interact.performed -= OnInteract;
             move = null;
             interact = null;
             inputs = null;
