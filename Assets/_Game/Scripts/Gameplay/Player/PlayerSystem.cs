@@ -14,63 +14,56 @@ namespace Emergence.Gameplay.Player
             RequireForUpdate<EnvironmentComponent>();
         }
 
-        // 统一切换入口：调用方不得分别修改启用位，避免一帧执行多个形态的运动。
+        // 仅在切换入口校验枚举值；读取形态直接读取 Component。
         public static void SetForm(EntityManager manager, Entity player, PlayerFormKind form)
         {
-            if (form != PlayerFormKind.Solid && form != PlayerFormKind.Liquid && form != PlayerFormKind.Gas)
+            if (!Enum.IsDefined(typeof(PlayerFormKind), form))
                 throw new ArgumentOutOfRangeException(nameof(form));
-            manager.SetComponentEnabled<PlayerSolidComponent>(player, form == PlayerFormKind.Solid);
-            manager.SetComponentEnabled<PlayerLiquidComponent>(player, form == PlayerFormKind.Liquid);
-            manager.SetComponentEnabled<PlayerGasComponent>(player, form == PlayerFormKind.Gas);
-        }
-
-        public static PlayerFormKind GetForm(EntityManager manager, Entity player)
-        {
-            bool solid = manager.IsComponentEnabled<PlayerSolidComponent>(player);
-            bool liquid = manager.IsComponentEnabled<PlayerLiquidComponent>(player);
-            bool gas = manager.IsComponentEnabled<PlayerGasComponent>(player);
-            if ((solid ? 1 : 0) + (liquid ? 1 : 0) + (gas ? 1 : 0) != 1)
-                throw new InvalidOperationException("Player must have exactly one enabled form component.");
-            return solid ? PlayerFormKind.Solid : liquid ? PlayerFormKind.Liquid : PlayerFormKind.Gas;
+            manager.SetComponentData(player, new PlayerFormComponent { Value = form });
         }
 
         protected override void OnUpdate()
         {
             float dt = SystemAPI.Time.DeltaTime;
             var environment = SystemAPI.GetSingleton<EnvironmentComponent>();
-            // 普通查询跳过禁用形态，各分支只读取对应形态参数。
-            foreach (var (position, motion, input, solid) in
+            // 先读取共用状态，再按形态读取对应参数；每个玩家每步只积分一次。
+            foreach (var (position, motion, input, form, entity) in
                      SystemAPI.Query<RefRW<PlayerPositionComponent>, RefRW<PlayerMotionComponent>,
-                         RefRW<PlayerInputComponent>, RefRO<PlayerSolidComponent>>().WithAll<PlayerTagComponent>())
+                         RefRW<PlayerInputComponent>, RefRO<PlayerFormComponent>>()
+                         .WithAll<PlayerTagComponent>().WithEntityAccess())
             {
-                float magnitude = solid.ValueRO.MoveVelocityMagnitude;
-                float2 current = motion.ValueRO.Velocity.xy;
-                float length = math.length(current);
-                if (length > magnitude) current *= magnitude / length;
-                float2 target = Direction(input.ValueRO.Move) * magnitude;
-                float2 change = target - current;
-                float changeLength = math.length(change);
-                float maxChange = magnitude / solid.ValueRO.ResponseTime * dt;
-                float2 velocity = changeLength <= maxChange ? target : current + change / changeLength * maxChange;
-                Integrate(ref position.ValueRW, ref motion.ValueRW, velocity, false, environment, dt);
-                input.ValueRW.InteractPressed = false;
-            }
-
-            foreach (var (position, motion, input, liquid) in
-                     SystemAPI.Query<RefRW<PlayerPositionComponent>, RefRW<PlayerMotionComponent>,
-                         RefRW<PlayerInputComponent>, RefRO<PlayerLiquidComponent>>().WithAll<PlayerTagComponent>())
-            {
-                float2 velocity = Direction(input.ValueRO.Move) * liquid.ValueRO.MoveVelocityMagnitude;
-                Integrate(ref position.ValueRW, ref motion.ValueRW, velocity, false, environment, dt);
-                input.ValueRW.InteractPressed = false;
-            }
-
-            foreach (var (position, motion, input, gas) in
-                     SystemAPI.Query<RefRW<PlayerPositionComponent>, RefRW<PlayerMotionComponent>,
-                         RefRW<PlayerInputComponent>, RefRO<PlayerGasComponent>>().WithAll<PlayerTagComponent>())
-            {
-                float2 velocity = Direction(input.ValueRO.Move) * gas.ValueRO.MoveVelocityMagnitude + environment.WindVelocity.xy;
-                Integrate(ref position.ValueRW, ref motion.ValueRW, velocity, true, environment, dt);
+                float2 direction = Direction(input.ValueRO.Move);
+                float2 velocity;
+                switch (form.ValueRO.Value)
+                {
+                    // 固体移动逻辑
+                    case PlayerFormKind.Solid:
+                        var solid = SystemAPI.GetComponent<PlayerSolidComponent>(entity);
+                        float magnitude = solid.MoveVelocityMagnitude;
+                        float2 current = motion.ValueRO.Velocity.xy;
+                        float length = math.length(current);
+                        if (length > magnitude) current *= magnitude / length;
+                        float2 target = direction * magnitude;
+                        float2 change = target - current;
+                        float changeLength = math.length(change);
+                        float maxChange = magnitude / solid.ResponseTime * dt;
+                        velocity = changeLength <= maxChange ? target : current + change / changeLength * maxChange;
+                        break;
+                    // 液体移动逻辑
+                    case PlayerFormKind.Liquid:
+                        var liquid = SystemAPI.GetComponent<PlayerLiquidComponent>(entity);
+                        velocity = direction * liquid.MoveVelocityMagnitude;
+                        break;
+                    // 气体移动逻辑
+                    case PlayerFormKind.Gas:
+                        var gas = SystemAPI.GetComponent<PlayerGasComponent>(entity);
+                        velocity = direction * gas.MoveVelocityMagnitude + environment.WindVelocity.xy;
+                        break;
+                    default:
+                        throw new InvalidOperationException("PlayerFormComponent contains an unsupported form.");
+                }
+                Integrate(ref position.ValueRW, ref motion.ValueRW, velocity,
+                    form.ValueRO.Value == PlayerFormKind.Gas, environment, dt);
                 input.ValueRW.InteractPressed = false;
             }
         }
@@ -85,25 +78,25 @@ namespace Emergence.Gameplay.Player
             float2 velocity, bool gas, EnvironmentComponent environment, float dt)
         {
             position.XY += velocity * dt;
-            float vertical;
+            float verticalVelocity;
             if (gas)
             {
-                vertical = environment.WindVelocity.z;
-                position.Height += vertical * dt;
+                verticalVelocity = environment.WindVelocity.z;
+                position.Height += verticalVelocity * dt;
             }
             else
             {
                 // 从气态切出时取消向上漂移，已有下落运动继续继承。
                 float previous = math.min(0, motion.Velocity.z);
                 position.Height += previous * dt - 0.5f * environment.Gravity * dt * dt;
-                vertical = previous - environment.Gravity * dt;
+                verticalVelocity = previous - environment.Gravity * dt;
             }
             if (position.Height <= 0)
             {
                 position.Height = 0;
-                vertical = 0;
+                verticalVelocity = 0;
             }
-            motion.Velocity = new float3(velocity, vertical);
+            motion.Velocity = new float3(velocity, verticalVelocity);
         }
     }
 }

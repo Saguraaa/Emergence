@@ -269,8 +269,10 @@ GameObject:
   - component: {fileID: 118715394}
   - component: {fileID: 118715393}
   - component: {fileID: 118715395}
+  - component: {fileID: 118715397}
+  - component: {fileID: 118715396}
   m_Layer: 0
-  m_Name: Player WorldView
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -346,6 +348,40 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.3
+--- !u!114 &118715396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118715392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab618f6ac2f7a144294c7783daaa9df1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.PlayerBootstrap
+  solidConfig: {fileID: 11400000, guid: b9acabbef0c33a342846c36c3526a1d8, type: 2}
+  liquidConfig: {fileID: 11400000, guid: 08257902f52f46ffb07414a088b4f1d3, type: 2}
+  gasConfig: {fileID: 11400000, guid: 8465741bf21347b7827d69beb8170c28, type: 2}
+  initialForm: 0
+  controller: {fileID: 118715397}
+  playerView: {fileID: 118715393}
+  inputSettings: {fileID: 1188234105}
+  initialHeight: 0
+--- !u!114 &118715397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118715392}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a1bd8e7edc85a4391319fe48f4de72, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.UI.Player.PlayerController
+  moveAction: {fileID: -1680190386980627800, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  interactAction: {fileID: 1781555164194001046, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!1 &220290089
 GameObject:
   m_ObjectHideFlags: 0
@@ -539,65 +575,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 673608121}
-  - component: {fileID: 673608120}
-  - component: {fileID: 673608119}
-  - component: {fileID: 2100000001}
-  - component: {fileID: 2100000002}
-  - component: {fileID: 673608118}
+  - component: {fileID: 673608122}
   m_Layer: 0
-  m_Name: Game Bootstrap
+  m_Name: Game
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &673608118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 673608117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfa16a019ecada24180837e9eb56ebdc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.UI.Input.InputSettingsController
-  inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
---- !u!114 &673608119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 673608117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab618f6ac2f7a144294c7783daaa9df1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.PlayerBootstrap
-  solidConfig: {fileID: 11400000, guid: b9acabbef0c33a342846c36c3526a1d8, type: 2}
-  liquidConfig: {fileID: 11400000, guid: 08257902f52f46ffb07414a088b4f1d3, type: 2}
-  gasConfig: {fileID: 11400000, guid: 8465741bf21347b7827d69beb8170c28, type: 2}
-  initialForm: 0
-  controller: {fileID: 673608120}
-  playerView: {fileID: 118715393}
-  inputSettings: {fileID: 673608118}
-  initialHeight: 0
---- !u!114 &673608120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 673608117}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7a1bd8e7edc85a4391319fe48f4de72, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.UI.Player.PlayerController
-  moveAction: {fileID: -1680190386980627800, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-  interactAction: {fileID: 1781555164194001046, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!4 &673608121
 Transform:
   m_ObjectHideFlags: 0
@@ -613,6 +598,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &673608122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 673608117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 786170fcf6fe5d643b539572149b3ad2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.GameBootstrap
+  inputBootstrap: {fileID: 1188234104}
+  environmentBootstrap: {fileID: 1483500418}
+  playerBootstrap: {fileID: 118715396}
 --- !u!1 &769515878
 GameObject:
   m_ObjectHideFlags: 0
@@ -6268,6 +6268,65 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &1188234103
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1188234106}
+  - component: {fileID: 1188234105}
+  - component: {fileID: 1188234104}
+  m_Layer: 0
+  m_Name: Input
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1188234104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188234103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2172a577462446daa004348e0446457c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.InputBootstrap
+  inputSettings: {fileID: 1188234105}
+--- !u!114 &1188234105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188234103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa16a019ecada24180837e9eb56ebdc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.UI.Input.InputSettingsController
+  inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+--- !u!4 &1188234106
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188234103}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1188884307
 GameObject:
   m_ObjectHideFlags: 0
@@ -6583,6 +6642,52 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1249897001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1483500417
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1483500419}
+  - component: {fileID: 1483500418}
+  m_Layer: 0
+  m_Name: Environment
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1483500418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1483500417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e73842bafc994900a8257d67040ed7d3, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.EnvironmentBootstrap
+  windVelocity: {x: 0, y: 0, z: 1}
+  gravity: 9.81
+--- !u!4 &1483500419
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1483500417}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1534166298
 GameObject:
@@ -14246,30 +14351,5 @@ SceneRoots:
   - {fileID: 1596152344}
   - {fileID: 673608121}
   - {fileID: 118715394}
---- !u!114 &2100000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 673608117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e73842bafc994900a8257d67040ed7d3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.EnvironmentBootstrap
-  windVelocity: {x: 0, y: 0, z: 1}
-  gravity: 9.81
---- !u!114 &2100000002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 673608117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2172a577462446daa004348e0446457c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.InputBootstrap
-  inputSettings: {fileID: 673608118}
+  - {fileID: 1483500419}
+  - {fileID: 1188234106}

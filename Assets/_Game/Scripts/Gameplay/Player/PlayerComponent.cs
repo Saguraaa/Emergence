@@ -5,20 +5,24 @@ namespace Emergence.Gameplay.Player
 {
     public struct PlayerTagComponent : IComponentData { }
     public enum PlayerFormKind : byte { Solid = 0, Liquid = 1, Gas = 2 }
+    // 单一枚举字段保存当前形态；三份参数不承担形态状态。
+    public struct PlayerFormComponent : IComponentData
+    {
+        public PlayerFormKind Value;
+    }
 
-    // 三份参数常驻实体，恰好启用一个；启用状态是当前形态的唯一权威来源。
-    public struct PlayerSolidComponent : IComponentData, IEnableableComponent
+    public struct PlayerSolidComponent : IComponentData
     {
         public float MoveVelocityMagnitude;
         public float ResponseTime;
     }
 
-    public struct PlayerLiquidComponent : IComponentData, IEnableableComponent
+    public struct PlayerLiquidComponent : IComponentData
     {
         public float MoveVelocityMagnitude;
     }
 
-    public struct PlayerGasComponent : IComponentData, IEnableableComponent
+    public struct PlayerGasComponent : IComponentData
     {
         public float MoveVelocityMagnitude;
     }

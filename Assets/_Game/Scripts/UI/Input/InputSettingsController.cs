@@ -17,7 +17,6 @@ namespace Emergence.UI.Input
 
         public void Initialize()
         {
-            if (runtimeActions != null) return;
             if (inputActions == null) throw new MissingReferenceException(name + ": inputActions is required.");
             runtimeActions = Instantiate(inputActions);
             LoadBindings();
@@ -32,7 +31,8 @@ namespace Emergence.UI.Input
             if (reference.asset != inputActions)
                 throw new ArgumentException("Action reference must belong to the configured input asset.", nameof(reference));
             // Inspector 引用原资源；按稳定 ID 解析副本，保证改键与游戏读取同一个动作。
-            return runtimeActions.FindAction(reference.action.id.ToString(), true);
+            return runtimeActions.FindAction(reference.action.id)
+                ?? throw new InvalidOperationException($"Action {reference.name} is missing from the runtime input asset.");
         }
 
         public int GetBindingCount(InputActionReference action) => GetAction(action).bindings.Count;
@@ -54,44 +54,37 @@ namespace Emergence.UI.Input
                 .OnCancel(_ => FinishRebind(false))
                 .OnComplete(_ => FinishRebind(true));
             IsRebinding = true;
-            try { rebind.Start(); }
-            catch { FinishRebind(false); throw; }
+            rebind.Start();
         }
 
         public void CancelRebind() => rebind?.Cancel();
 
         private void FinishRebind(bool save)
         {
-            rebind?.Dispose();
+            rebind.Dispose();
             rebind = null;
             IsRebinding = false;
             if (save) SaveBindings();
-            if (isActiveAndEnabled) runtimeActions?.Enable();
+            if (isActiveAndEnabled) runtimeActions.Enable();
             BindingsChanged?.Invoke();
         }
 
         public void SaveBindings()
         {
-            if (runtimeActions == null) return;
             PlayerPrefs.SetString(SaveKey, runtimeActions.SaveBindingOverridesAsJson());
             PlayerPrefs.Save();
         }
 
         public void LoadBindings()
         {
-            if (runtimeActions == null || !PlayerPrefs.HasKey(SaveKey)) return;
-            try { runtimeActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString(SaveKey)); }
-            catch (Exception exception)
-            {
-                runtimeActions.RemoveAllBindingOverrides();
-                Debug.LogWarning("Saved bindings could not be loaded; using defaults. " + exception.Message, this);
-            }
+            if (!PlayerPrefs.HasKey(SaveKey)) return;
+            runtimeActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString(SaveKey));
         }
 
         public void ResetBindings()
         {
             CancelRebind();
-            runtimeActions?.RemoveAllBindingOverrides();
+            runtimeActions.RemoveAllBindingOverrides();
             PlayerPrefs.DeleteKey(SaveKey);
             PlayerPrefs.Save();
             BindingsChanged?.Invoke();
@@ -99,7 +92,6 @@ namespace Emergence.UI.Input
 
         private void OnEnable() => runtimeActions?.Enable();
         private void OnDisable() { CancelRebind(); runtimeActions?.Disable(); }
-        private void OnDestroy() => Shutdown();
 
         public void Shutdown()
         {

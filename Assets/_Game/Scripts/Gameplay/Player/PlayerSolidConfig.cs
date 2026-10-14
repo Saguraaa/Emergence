@@ -12,7 +12,7 @@ namespace Emergence.Gameplay.Player
         public bool IsValid => math.isfinite(MoveVelocityMagnitude) && MoveVelocityMagnitude > 0
             && math.isfinite(ResponseTime) && ResponseTime > 0;
 
-        public PlayerSolidComponent CreateComponent() => new PlayerSolidComponent
+        public PlayerSolidComponent CreateComponent() => new()
         {
             MoveVelocityMagnitude = MoveVelocityMagnitude,
             ResponseTime = ResponseTime

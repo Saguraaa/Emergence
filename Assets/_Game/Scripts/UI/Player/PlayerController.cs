@@ -28,7 +28,6 @@ namespace Emergence.UI.Player
         public void Initialize(World targetWorld, Entity entity, PlayerView playerView,
             InputSettingsController inputSettings)
         {
-            if (initialized) return;
             enabled = false;
             if (targetWorld == null || !targetWorld.IsCreated || !targetWorld.EntityManager.Exists(entity))
                 throw new ArgumentException(name + ": PlayerController requires a live player entity.");
@@ -38,15 +37,16 @@ namespace Emergence.UI.Player
             if (interactAction == null) throw new MissingReferenceException(name + ": interactAction is required.");
             var resolvedMove = inputSettings.GetAction(moveAction);
             var resolvedInteract = inputSettings.GetAction(interactAction);
-            if (resolvedMove.expectedControlType != "Vector2" || resolvedMove.type == InputActionType.Button)
+            if (resolvedMove is not { expectedControlType: "Vector2", type: not InputActionType.Button })
                 throw new InvalidOperationException(name + ": moveAction must provide Vector2 input.");
             if (resolvedInteract.type != InputActionType.Button)
                 throw new InvalidOperationException(name + ": interactAction must be a Button action.");
             var manager = targetWorld.EntityManager;
             if (!manager.HasComponent<PlayerInputComponent>(entity) ||
-                !manager.HasComponent<PlayerPositionComponent>(entity) || !manager.HasComponent<PlayerMotionComponent>(entity))
+                !manager.HasComponent<PlayerPositionComponent>(entity) || !manager.HasComponent<PlayerMotionComponent>(entity) ||
+                !manager.HasComponent<PlayerFormComponent>(entity))
                 throw new ArgumentException(name + ": player entity is missing required components.");
-            var form = PlayerSystem.GetForm(manager, entity);
+            var form = manager.GetComponentData<PlayerFormComponent>(entity).Value;
             playerView.Initialize(form);
             world = targetWorld;
             player = entity;
@@ -83,24 +83,22 @@ namespace Emergence.UI.Player
         {
             var manager = world.EntityManager;
             view.Refresh(manager.GetComponentData<PlayerPositionComponent>(player),
-                PlayerSystem.GetForm(manager, player), manager.GetComponentData<PlayerMotionComponent>(player));
+                manager.GetComponentData<PlayerFormComponent>(player).Value, manager.GetComponentData<PlayerMotionComponent>(player));
         }
 
         private void OnDisable()
         {
             // World 可能先于对象销毁；只在生命周期边界校验有效性。
-            if (initialized && world.IsCreated && world.EntityManager.Exists(player))
+            if (initialized && world.IsCreated)
                 world.EntityManager.SetComponentData(player, new PlayerInputComponent());
         }
 
-        private void OnDestroy() => Shutdown();
 
         public void Shutdown()
         {
             enabled = false;
             if (!initialized) return;
             interact.performed -= OnInteract;
-            if (view != null) view.Shutdown();
             initialized = false;
             move = null;
             interact = null;

@@ -10,7 +10,7 @@ namespace Emergence.Gameplay.Player
 
         public bool IsValid => math.isfinite(MoveVelocityMagnitude) && MoveVelocityMagnitude > 0;
 
-        public PlayerLiquidComponent CreateComponent() => new PlayerLiquidComponent
+        public PlayerLiquidComponent CreateComponent() => new()
         {
             MoveVelocityMagnitude = MoveVelocityMagnitude
         };

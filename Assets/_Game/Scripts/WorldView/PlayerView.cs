@@ -32,9 +32,15 @@ namespace Emergence.WorldView
 
         private void ShowForm(PlayerFormKind form)
         {
-            solidBody.gameObject.SetActive(form == PlayerFormKind.Solid);
-            liquidBody.gameObject.SetActive(form == PlayerFormKind.Liquid);
-            bool gas = form == PlayerFormKind.Gas;
+            var (solid, liquid, gas) = form switch
+            {
+                PlayerFormKind.Solid => (true, false, false),
+                PlayerFormKind.Liquid => (false, true, false),
+                PlayerFormKind.Gas => (false, false, true),
+                _ => throw new System.ArgumentOutOfRangeException(nameof(form))
+            };
+            solidBody.gameObject.SetActive(solid);
+            liquidBody.gameObject.SetActive(liquid);
             if (!gas) gasParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             gasParticles.gameObject.SetActive(gas);
             if (gas) gasParticles.Play();
@@ -46,8 +52,8 @@ namespace Emergence.WorldView
 
         public void Refresh(PlayerPositionComponent position, PlayerFormKind form, PlayerMotionComponent motion)
         {
-            transform.position = new Vector3(position.XY.x, position.XY.y, transform.position.z);
-            bodyRoot.localPosition = new Vector3(0, position.Height, 0);
+            transform.position = new(position.XY.x, position.XY.y, transform.position.z);
+            bodyRoot.localPosition = new(0, position.Height, 0);
             if (shownForm != form) ShowForm(form);
             float amount = Mathf.Min(1, new Vector2(motion.Velocity.x, motion.Velocity.y).magnitude);
             float pulse = Mathf.Sin(Time.time * 10) * 0.08f * amount;
@@ -59,13 +65,5 @@ namespace Emergence.WorldView
                     Mathf.Atan2(motion.Velocity.y, motion.Velocity.x) * Mathf.Rad2Deg);
         }
 
-        public void Shutdown()
-        {
-            // 场景销毁时子对象可能已销毁；这些检查只发生在关闭阶段。
-            if (gasParticles != null) gasParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            if (gasTrail != null) { gasTrail.Clear(); gasTrail.emitting = false; }
-            if (solidBody != null) solidBody.transform.localScale = solidScale;
-            if (liquidBody != null) liquidBody.transform.localScale = liquidScale;
-        }
     }
 }
