@@ -9,6 +9,7 @@ namespace Emergence.Bootstrap
         [SerializeField] private PlayerBootstrap playerBootstrap;
         [SerializeField] private ObstacleBootstrap[] obstacleBootstraps = new ObstacleBootstrap[0];
         [SerializeField] private InteractionBootstrap[] interactionBootstraps = new InteractionBootstrap[0];
+        [SerializeField] private RespawnBootstrap[] respawnBootstraps = new RespawnBootstrap[0];
 
         // 总入口仅启动一次，各门控不再维护防重复初始化状态。
         private void Start() => Initialize();
@@ -27,11 +28,16 @@ namespace Emergence.Bootstrap
             for (int i = 0; i < interactionBootstraps.Length; i++)
                 if (interactionBootstraps[i] == null)
                     throw new MissingReferenceException($"{name}: interactionBootstraps[{i}] is required.");
+            if (respawnBootstraps == null) throw new MissingReferenceException(name + ": respawnBootstraps is required.");
+            for (int i = 0; i < respawnBootstraps.Length; i++)
+                if (respawnBootstraps[i] == null)
+                    throw new MissingReferenceException($"{name}: respawnBootstraps[{i}] is required.");
             // 初始化
             inputBootstrap.Initialize();
             environmentBootstrap.Initialize();
             foreach (var obstacleBootstrap in obstacleBootstraps) obstacleBootstrap.Initialize();
             foreach (var interactionBootstrap in interactionBootstraps) interactionBootstrap.Initialize();
+            foreach (var respawnBootstrap in respawnBootstraps) respawnBootstrap.Initialize();
             playerBootstrap.Initialize();
         }
 
@@ -39,6 +45,7 @@ namespace Emergence.Bootstrap
         {
             // 先停止玩家访问，再释放环境和输入；错误直接交给 Unity 报告。
             playerBootstrap.Shutdown();
+            for (int i = respawnBootstraps.Length - 1; i >= 0; i--) respawnBootstraps[i].Shutdown();
             for (int i = interactionBootstraps.Length - 1; i >= 0; i--) interactionBootstraps[i].Shutdown();
             for (int i = obstacleBootstraps.Length - 1; i >= 0; i--) obstacleBootstraps[i].Shutdown();
             environmentBootstrap.Shutdown();

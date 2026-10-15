@@ -23,6 +23,9 @@ namespace Emergence.Gameplay.Player
             if (physics == null) throw new InvalidOperationException("PhysicsSystem must be initialized before player movement.");
         }
 
+        public static void Die(EntityManager manager, Entity player) =>
+            manager.SetComponentEnabled<DeadTagComponent>(player, true);
+
         // 仅在切换入口校验枚举值；读取形态直接读取 Component。
         public static void SetForm(EntityManager manager, Entity player, PlayerFormKind form)
         {
@@ -41,6 +44,7 @@ namespace Emergence.Gameplay.Player
                          RefRW<PlayerInputComponent>, RefRO<PlayerFormComponent>>()
                          .WithAll<PlayerTagComponent>().WithEntityAccess())
             {
+                if (SystemAPI.HasComponent<DeadTagComponent>(entity) && SystemAPI.IsComponentEnabled<DeadTagComponent>(entity)) continue;
                 float2 direction = Direction(input.ValueRO.Move);
                 float2 velocity;
                 switch (form.ValueRO.Value)

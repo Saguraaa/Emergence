@@ -1,9 +1,8 @@
 using System;
 using Emergence.Gameplay.Environment;
-using Emergence.Gameplay.Player;
 using Emergence.Gameplay.Physics;
 using Emergence.UI.Input;
-using Emergence.UI.Player;
+using Emergence.Gameplay.Player;
 using Emergence.WorldView;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -65,6 +64,8 @@ namespace Emergence.Bootstrap
                 typeof(PlayerPositionComponent), typeof(PlayerMotionComponent), typeof(PlayerFormComponent),
                 typeof(PlayerSolidComponent), typeof(PlayerLiquidComponent), typeof(PlayerGasComponent));
             manager.SetName(player, "Player");
+            manager.AddComponent<DeadTagComponent>(player);
+            manager.SetComponentEnabled<DeadTagComponent>(player, false);
             manager.AddBuffer<PhysicsContactComponent>(player);
             Vector3 spawn = playerView.transform.position;
             manager.SetComponentData(player, new PlayerPositionComponent

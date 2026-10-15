@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Emergence.Gameplay.Interaction
+namespace Emergence.Gameplay.InteractCallback
 {
     public sealed class InteractionTextOutput : MonoBehaviour
     {

@@ -4,6 +4,7 @@ using Unity.Mathematics;
 namespace Emergence.Gameplay.Player
 {
     public struct PlayerTagComponent : IComponentData { }
+    public struct DeadTagComponent : IComponentData, IEnableableComponent { }
     public enum PlayerFormKind : byte { Solid = 0, Liquid = 1, Gas = 2 }
     // 单一枚举字段保存当前形态；三份参数不承担形态状态。
     public struct PlayerFormComponent : IComponentData

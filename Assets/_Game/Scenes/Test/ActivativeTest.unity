@@ -566,7 +566,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7a1bd8e7edc85a4391319fe48f4de72, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.UI.Player.PlayerController
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Player.PlayerController
   moveAction: {fileID: -1680190386980627800, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   interactAction: {fileID: 1781555164194001046, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!114 &444064332
@@ -1060,6 +1060,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: interactionMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: interactionLayers.m_Bits
+      value: 512
+      objectReference: {fileID: 0}
     - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2
@@ -1109,7 +1117,15 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1314842968}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 1314842968}
     - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
@@ -1117,12 +1133,28 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: Output
       objectReference: {fileID: 0}
     - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: Output
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Emergence.Gameplay.Interaction.InteractionTextOutput, Assembly-CSharp
+      value: Emergence.Gameplay.InteractCallback.InteractionTextOutput, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: Emergence.Gameplay.InteractCallback.InteractionTextOutput, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1159,8 +1191,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6adc2b1b4371cb3459f93a0e97747779, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Interaction.InteractionTextOutput
-  message: 'ActivativeTest: interaction activated.'
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.InteractCallback.InteractionTextOutput
+  message: 566666676767
 --- !u!1 &1344631115
 GameObject:
   m_ObjectHideFlags: 0
@@ -6192,122 +6224,6 @@ Transform:
   - {fileID: 886834190}
   m_Father: {fileID: 444064333}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1853675967
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5303555325483576802, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_Name
-      value: Obstacle_Destructible
-      objectReference: {fileID: 0}
-    - target: {fileID: 6186305247496808394, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: isDestructible
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7219394777433498156, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_Size.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7219394777433498156, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_Size.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7219394777433498156, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7219394777433498156, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8589311900175386067, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-    - target: {fileID: 8589311900175386067, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_Color.b
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 8589311900175386067, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_Color.g
-      value: 0.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 8589311900175386067, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
---- !u!114 &1853675968 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6186305247496808394, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-  m_PrefabInstance: {fileID: 1853675967}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
 --- !u!1 &2100399224
 GameObject:
   m_ObjectHideFlags: 0
@@ -6318,6 +6234,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2100399226}
   - component: {fileID: 2100399225}
+  - component: {fileID: 2100399227}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -6405,6 +6322,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2100399227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100399224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &2123250770
 GameObject:
   m_ObjectHideFlags: 0
@@ -6437,11 +6383,10 @@ MonoBehaviour:
   inputBootstrap: {fileID: 89830883}
   environmentBootstrap: {fileID: 1164964011}
   playerBootstrap: {fileID: 444064329}
-  obstacleBootstraps:
-  - {fileID: 2123646415}
-  - {fileID: 1853675968}
+  obstacleBootstraps: []
   interactionBootstraps:
   - {fileID: 1314842967}
+  respawnBootstraps: []
 --- !u!4 &2123250772
 Transform:
   m_ObjectHideFlags: 0
@@ -6457,90 +6402,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &2123646414
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.14461316
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.14461316
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.14461316
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4437012206469186244, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5303555325483576802, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_Name
-      value: Obstacle_Indestructible
-      objectReference: {fileID: 0}
-    - target: {fileID: 8589311900175386067, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
---- !u!114 &2123646415 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6186305247496808394, guid: 05bede416cf1d704d9016ce11c7172d0, type: 3}
-  m_PrefabInstance: {fileID: 2123646414}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -6550,7 +6411,5 @@ SceneRoots:
   - {fileID: 89830884}
   - {fileID: 2123250772}
   - {fileID: 444064333}
-  - {fileID: 2123646414}
-  - {fileID: 1853675967}
   - {fileID: 2100399226}
   - {fileID: 1314842965}

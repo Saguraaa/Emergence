@@ -18,6 +18,15 @@ namespace Emergence.WorldView
         private float shadowWidth;
         // 仅缓存已显示形态，避免每帧重新播放粒子；权威形态仍在 ECS。
         private PlayerFormKind shownForm;
+        private Vector3 bodyScale;
+        private float respawnStarted = float.NegativeInfinity;
+
+        public void PlayRespawn()
+        {
+            respawnStarted = Time.time;
+            gasTrail.Clear();
+            gasParticles.Clear(true);
+        }
 
         public void Initialize(PlayerFormKind form)
         {
@@ -37,6 +46,8 @@ namespace Emergence.WorldView
                 throw new System.InvalidOperationException(name + ": shadow must be a direct child of the player ground root.");
             // 缓存表现参数
             solidScale = solidBody.transform.localScale;
+            bodyScale = bodyRoot.localScale;
+            respawnStarted = float.NegativeInfinity;
             liquidScale = liquidBody.transform.localScale;
             shadowScale = shadow.transform.localScale;
             shadowWidth = shadow.bounds.size.x;
@@ -73,6 +84,10 @@ namespace Emergence.WorldView
         {
             transform.position = new(position.XY.x, position.XY.y, transform.position.z);
             bodyRoot.localPosition = new(0, position.Height, 0);
+            // 0.6 秒由小放大并轻微弹起，仅缩放表现节点。
+            float progress = Mathf.Clamp01((Time.time - respawnStarted) / 0.6f);
+            float scale = progress >= 1 ? 1 : Mathf.Lerp(0.15f, 1, progress) + Mathf.Sin(progress * Mathf.PI) * 0.2f;
+            bodyRoot.localScale = bodyScale * scale;
             if (shownForm != form) ShowForm(form);
             float amount = Mathf.Min(1, new Vector2(motion.Velocity.x, motion.Velocity.y).magnitude);
             float pulse = Mathf.Sin(Time.time * 10) * 0.08f * amount;
