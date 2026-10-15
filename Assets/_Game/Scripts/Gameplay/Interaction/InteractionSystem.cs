@@ -12,8 +12,8 @@ namespace Emergence.Gameplay.Interaction
     {
         protected override void OnUpdate()
         {
-            foreach (var (state, overlaps) in
-                     SystemAPI.Query<RefRW<InteractionStateComponent>, DynamicBuffer<InteractionOverlapComponent>>()
+            foreach (var (state, requirement, overlaps) in
+                     SystemAPI.Query<RefRW<InteractionStateComponent>, RefRO<InteractionRequirementComponent>, DynamicBuffer<InteractionOverlapComponent>>()
                          .WithAll<InteractiveComponent>())
             {
                 bool occupied = false;
@@ -21,6 +21,12 @@ namespace Emergence.Gameplay.Interaction
                 foreach (var overlap in overlaps)
                 {
                     if (!SystemAPI.HasComponent<PlayerTagComponent>(overlap.Entity)) continue;
+                    if (SystemAPI.HasComponent<DeadTagComponent>(overlap.Entity) &&
+                        SystemAPI.IsComponentEnabled<DeadTagComponent>(overlap.Entity)) continue;
+                    var position = SystemAPI.GetComponent<PlayerPositionComponent>(overlap.Entity);
+                    var form = SystemAPI.GetComponent<PlayerFormComponent>(overlap.Entity).Value;
+                    if (position.Height < requirement.ValueRO.MinimumHeight ||
+                        (requirement.ValueRO.AllowedForms & (InteractionForms)(1 << (int)form)) == 0) continue;
                     occupied = true;
                     pressed |= SystemAPI.GetComponent<PlayerInputComponent>(overlap.Entity).InteractPressed;
                 }

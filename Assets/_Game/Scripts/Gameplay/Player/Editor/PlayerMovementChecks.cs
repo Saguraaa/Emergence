@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using Emergence.Gameplay.Environment;
+using Emergence.Gameplay.Obstacle;
 using Emergence.Gameplay.Physics.Editor;
 using Unity.Core;
 using Unity.Entities;
@@ -136,6 +137,26 @@ namespace Emergence.Gameplay.Player.Editor
                 Check(gasMagnitude < solidMagnitude && solidMagnitude < math.length(Velocity().xy), "Gas < Solid < Liquid control magnitude");
                 using (var query = manager.CreateEntityQuery(typeof(PlayerTagComponent)))
                     Check(query.CalculateEntityCount() == 1, "Form changes reuse one entity");
+
+                var obstacle = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent));
+                physicsScene.AddObstacle(obstacle, Vector2.zero, new Vector2(2, 2), 1);
+                Reset(PlayerFormKind.Gas, 2);
+                Tick(1, float2.zero);
+                Check(math.length(Position().XY) < .001f && Position().Height > 2,
+                    "Gas above obstacle projection rises without horizontal correction");
+                PlayerSystem.SetForm(manager, player, PlayerFormKind.Liquid);
+                Tick(60, float2.zero);
+                Check(Position().Height > 1 && Position().Height < 1.01f && Velocity().z == 0 &&
+                    math.length(Position().XY) < .001f, "Converted liquid descent is constrained above obstacle");
+                Tick(60, new float2(1, 0));
+                Check(Position().XY.x > 3.9f && Position().Height == 0 && Velocity().z == 0,
+                    "Liquid moves off obstacle and resumes falling to ground");
+                Reset(PlayerFormKind.Gas, 2);
+                manager.SetComponentData(environment, new EnvironmentComponent { WindVelocity = new float3(0, 0, -4), Gravity = 10 });
+                Tick(60, float2.zero);
+                Check(Position().Height > 1 && Position().Height < 1.01f && Velocity().z == 0,
+                    "Downward wind uses the same height constraint");
+                physicsScene.Physics.SetObstacleEnabled(obstacle, false);
 
                 // 三份参数同时存在时，枚举仍只能选择一种运动逻辑，不能重复积分。
                 foreach (PlayerFormKind form in Enum.GetValues(typeof(PlayerFormKind)))

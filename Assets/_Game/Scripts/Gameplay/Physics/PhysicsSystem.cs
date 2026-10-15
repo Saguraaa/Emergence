@@ -35,8 +35,9 @@ namespace Emergence.Gameplay.Physics
 
         public void RegisterBody(Entity entity, Rigidbody2D rigidbody, Collider2D[] shapes, LayerMask collisionLayers)
         {
-            if (!EntityManager.Exists(entity) || !EntityManager.HasBuffer<PhysicsContactComponent>(entity))
-                throw new ArgumentException("Physics body requires a live entity with PhysicsContactComponent.");
+            if (!EntityManager.Exists(entity) || !EntityManager.HasBuffer<PhysicsContactComponent>(entity) ||
+                !EntityManager.HasComponent<PlayerPositionComponent>(entity))
+                throw new ArgumentException("Physics body requires a live entity with position and PhysicsContactComponent.");
             if (rigidbody == null) throw new MissingReferenceException("Physics body requires Rigidbody2D.");
             if (rigidbody.bodyType != RigidbodyType2D.Kinematic || !rigidbody.simulated)
                 throw new InvalidOperationException(rigidbody.name + ": Rigidbody2D must be simulated and Kinematic.");
@@ -62,7 +63,11 @@ namespace Emergence.Gameplay.Physics
 
         public void RegisterObstacle(Entity entity, Collider2D collider)
         {
-            if (!EntityManager.Exists(entity)) throw new ArgumentException("Physics obstacle requires a live entity.");
+            if (!EntityManager.Exists(entity) || !EntityManager.HasComponent<ObstacleHeightComponent>(entity))
+                throw new ArgumentException("Physics obstacle requires a live entity with ObstacleHeightComponent.");
+            float height = EntityManager.GetComponentData<ObstacleHeightComponent>(entity).Height;
+            if (!math.isfinite(height) || height < 0)
+                throw new ArgumentException("Physics obstacle height must be finite and nonnegative.");
             ValidateCollider(collider);
             obstacles.Add(entity, collider);
             entities.Add(collider, entity);
@@ -87,7 +92,8 @@ namespace Emergence.Gameplay.Physics
         public void UnregisterInteraction(Entity entity)
         {
             var collider = interactions[entity].Collider;
-            collider.enabled = false;
+            // 场景销毁时 Collider 可能先于总门控释放；注册记录仍须完整移除。
+            if (collider != null) collider.enabled = false;
             entities.Remove(collider);
             interactions.Remove(entity);
         }
@@ -120,19 +126,29 @@ namespace Emergence.Gameplay.Physics
 
         public void SetObstacleEnabled(Entity entity, bool enabled) => obstacles[entity].enabled = enabled;
 
-        public (float2 Displacement, float2 Velocity) Move(Entity entity, float2 origin, float2 displacement, float2 velocity, int shapeIndex)
+        public (float2 Displacement, float2 Velocity, float Height, float VerticalVelocity) Move(
+            Entity entity, float2 origin, float2 displacement, float2 velocity, int shapeIndex) =>
+            Move(entity, origin, displacement, velocity, shapeIndex,
+                EntityManager.GetComponentData<PlayerPositionComponent>(entity).Height, 0, 0);
+
+        public (float2 Displacement, float2 Velocity, float Height, float VerticalVelocity) Move(
+            Entity entity, float2 origin, float2 displacement, float2 velocity, int shapeIndex,
+            float height, float heightDisplacement, float verticalVelocity)
         {
             var body = bodies[entity];
             for (int i = 0; i < body.Shapes.Length; i++) body.Shapes[i].enabled = i == shapeIndex;
             body.ActiveShape = body.Shapes[shapeIndex];
             body.Rigidbody.position = origin;
             Physics2D.SyncTransforms();
+            // 每步先约束高度，再在允许高度上移动地图投影；Collider 始终留在地面节点。
+            float resolvedHeight = ResolveHeight(body, height, heightDisplacement);
+            if (math.abs(resolvedHeight - (height + heightDisplacement)) > 0.000001f) verticalVelocity = 0;
             Vector2 start = origin;
             Vector2 position = origin;
             Vector2 remaining = displacement;
             Vector2 resolvedVelocity = velocity;
 
-            position = ResolveOverlap(body, position);
+            position = ResolveOverlap(body, position, resolvedHeight);
 
             for (int iteration = 0; iteration < MaxIterations && remaining.sqrMagnitude > 1e-10f; iteration++)
             {
@@ -143,6 +159,7 @@ namespace Emergence.Gameplay.Physics
                 Vector2 normal = Vector2.zero;
                 foreach (var hit in hits)
                 {
+                    if (!BlocksAtHeight(hit.collider, resolvedHeight)) continue;
                     if (Vector2.Dot(direction, hit.normal) >= -0.0001f) continue;
                     if (hit.distance > travel + ContactDistance) continue;
                     travel = Mathf.Min(travel, Mathf.Max(0, hit.distance - ContactDistance));
@@ -156,11 +173,37 @@ namespace Emergence.Gameplay.Physics
             }
             body.Rigidbody.position = position;
             Physics2D.SyncTransforms();
-            position = ResolveOverlap(body, position);
-            return ((float2)(position - start), (float2)resolvedVelocity);
+            position = ResolveOverlap(body, position, resolvedHeight);
+            return ((float2)(position - start), (float2)resolvedVelocity, resolvedHeight, verticalVelocity);
         }
 
-        private Vector2 ResolveOverlap(Body body, Vector2 position)
+        private bool BlocksAtHeight(Collider2D collider, float height)
+        {
+            var entity = entities[collider];
+            return !obstacles.ContainsKey(entity) ||
+                   height <= EntityManager.GetComponentData<ObstacleHeightComponent>(entity).Height;
+        }
+
+        private float ResolveHeight(Body body, float height, float displacement)
+        {
+            float target = math.max(0, height + displacement);
+            if (displacement >= 0) return target;
+            FindNearby(body);
+            foreach (var other in overlaps)
+            {
+                var entity = entities[other];
+                if (!obstacles.ContainsKey(entity)) continue;
+                float top = EntityManager.GetComponentData<ObstacleHeightComponent>(entity).Height;
+                // 已在障碍内部的初始位置交给二维穿透修正，不把玩家传送到顶部。
+                if (height <= top || target > top + ContactDistance * 2) continue;
+                var distance = body.ActiveShape.Distance(other);
+                if (!distance.isOverlapped) continue;
+                target = math.max(target, math.min(height, top + ContactDistance * 2));
+            }
+            return target;
+        }
+
+        private Vector2 ResolveOverlap(Body body, Vector2 position, float height)
         {
             // Cast 与 Distance 的接触边距不同，移动后也须用 Unity 距离查询确认无穿透。
             for (int iteration = 0; iteration < MaxIterations; iteration++)
@@ -170,6 +213,7 @@ namespace Emergence.Gameplay.Physics
                 foreach (var other in overlaps)
                 {
                     if (other.attachedRigidbody == body.Rigidbody) continue;
+                    if (!BlocksAtHeight(other, height)) continue;
                     var distance = body.ActiveShape.Distance(other);
                     if (!distance.isOverlapped) continue;
                     position += distance.normal * (distance.distance - ContactDistance);
@@ -206,12 +250,14 @@ namespace Emergence.Gameplay.Physics
             }
             foreach (var (entity, body) in bodies)
             {
+                float height = EntityManager.GetComponentData<PlayerPositionComponent>(entity).Height;
                 var contacts = EntityManager.GetBuffer<PhysicsContactComponent>(entity);
                 contacts.Clear();
                 FindNearby(body);
                 foreach (var other in overlaps)
                 {
                     if (other.attachedRigidbody == body.Rigidbody) continue;
+                    if (!BlocksAtHeight(other, height)) continue;
                     var distance = body.ActiveShape.Distance(other);
                     if (distance.distance > ContactDistance * 2) continue;
                     contacts.Add(new PhysicsContactComponent { Entity = entities[other], Normal = distance.normal });

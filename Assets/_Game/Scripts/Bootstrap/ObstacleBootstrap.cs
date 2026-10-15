@@ -3,6 +3,7 @@ using Emergence.Gameplay.Obstacle;
 using Emergence.Gameplay.Physics;
 using Emergence.WorldView;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Emergence.Bootstrap
@@ -11,6 +12,7 @@ namespace Emergence.Bootstrap
     {
         [SerializeField] private BoxCollider2D colliderBounds;
         [SerializeField] private bool isDestructible;
+        [SerializeField, Min(0)] private float obstacleHeight = 1f;
         [SerializeField] private ObstacleController controller;
         [SerializeField] private ObstacleView obstacleView;
         private World world;
@@ -20,6 +22,8 @@ namespace Emergence.Bootstrap
         public void Initialize()
         {
             // 校验
+            if (!math.isfinite(obstacleHeight) || obstacleHeight < 0)
+                throw new InvalidOperationException(name + ": obstacleHeight must be finite and nonnegative.");
             if (controller == null) throw new MissingReferenceException(name + ": controller is required.");
             if (obstacleView == null) throw new MissingReferenceException(name + ": obstacleView is required.");
             if (colliderBounds == null)
@@ -33,7 +37,8 @@ namespace Emergence.Bootstrap
             // 初始化
             obstacleView.Initialize();
             colliderBounds.enabled = true;
-            obstacle = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent));
+            obstacle = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent), typeof(ObstacleHeightComponent));
+            manager.SetComponentData(obstacle, new ObstacleHeightComponent { Height = obstacleHeight });
             manager.SetName(obstacle, name);
             physics.RegisterObstacle(obstacle, colliderBounds);
             if (isDestructible) manager.AddComponent<ObstacleDestructibleTagComponent>(obstacle);

@@ -102,6 +102,33 @@ namespace Emergence.Gameplay.Obstacle.Editor
             scene.Solid.size = new Vector2(0.8f, 0.8f);
             movement = scene.Physics.Move(player, new float2(-1.45f, 0), float2.zero, float2.zero, 2);
             Check(-1.45f + movement.Displacement.x <= -1.59f, "Switching to larger gas collider resolves overlap");
+
+            movement = scene.Physics.Move(player, new float2(-3, 0), new float2(6, 0), new float2(6, 0), 2, 1, 0, 0);
+            Check(-3 + movement.Displacement.x < -1.59f, "Gas at obstacle height remains blocked");
+            movement = scene.Physics.Move(player, new float2(-3, 0), new float2(6, 0), new float2(6, 0), 2, 1.01f, 0, 0);
+            Check(math.abs(movement.Displacement.x - 6) < .001f && collider.enabled,
+                "Gas above obstacle crosses without globally disabling collider");
+            movement = scene.Physics.Move(player, float2.zero, float2.zero, float2.zero, 2, 2, 0, 0);
+            Check(math.length(movement.Displacement) < .001f, "High gas overlapping ground projection is not pushed out");
+            movement = scene.Physics.Move(player, float2.zero, float2.zero, float2.zero, 2, 2, -3, -10);
+            Check(movement.Height > 1 && movement.Height < 1.01f && movement.VerticalVelocity == 0 &&
+                math.length(movement.Displacement) < .001f, "Descent stops above obstacle without horizontal ejection");
+            float heldHeight = movement.Height;
+            movement = scene.Physics.Move(player, float2.zero, new float2(3, 0), new float2(3, 0), 1, heldHeight, -.2f, -2);
+            Check(math.abs(movement.Displacement.x - 3) < .001f && math.abs(movement.Height - heldHeight) < .001f,
+                "Changing to liquid above obstacle permits moving away");
+            movement = scene.Physics.Move(player, new float2(3, 0), float2.zero, float2.zero, 1, heldHeight, -.2f, -2);
+            Check(movement.Height < 1 && movement.VerticalVelocity == -2, "Descent resumes after leaving ground projection");
+            movement = scene.Physics.Move(player, new float2(-3, 0), new float2(6, 0), new float2(6, 0), 2, 0, 2, 1);
+            Check(math.abs(movement.Displacement.x - 6) < .001f && movement.Height == 2,
+                "Same-step ascent uses resolved height for movement");
+            Reset(PlayerFormKind.Solid, float2.zero);
+            manager.SetComponentData(player, new PlayerPositionComponent { Height = 2 });
+            movement = scene.Physics.Move(player, float2.zero, float2.zero, float2.zero, 0);
+            scene.Physics.Update();
+            system.Update();
+            Check(manager.GetBuffer<PhysicsContactComponent>(player).Length == 0 && !Destroyed(),
+                "High solid receives no false obstacle contact and cannot destroy it");
             scene.Physics.SetObstacleEnabled(obstacle, false);
             movement = scene.Physics.Move(player, new float2(-3, 0), new float2(4, 0), new float2(4, 0), 0);
             Check(math.abs(movement.Displacement.x - 4) < 0.001f, "Destroyed obstacle no longer blocks movement");

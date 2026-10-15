@@ -75,10 +75,15 @@ namespace Emergence.Gameplay.Player
                     default:
                         throw new InvalidOperationException("PlayerFormComponent contains an unsupported form.");
                 }
-                var movement = physics.Move(entity, position.ValueRO.XY, velocity * dt, velocity, (int)form.ValueRO.Value);
-                position.ValueRW.XY += movement.Displacement;
-                Integrate(ref position.ValueRW, ref motion.ValueRW, movement.Velocity,
+                var desiredPosition = position.ValueRO;
+                var desiredMotion = motion.ValueRO;
+                Integrate(ref desiredPosition, ref desiredMotion, velocity,
                     form.ValueRO.Value == PlayerFormKind.Gas, environment, dt);
+                var movement = physics.Move(entity, position.ValueRO.XY, velocity * dt, velocity, (int)form.ValueRO.Value,
+                    position.ValueRO.Height, desiredPosition.Height - position.ValueRO.Height, desiredMotion.Velocity.z);
+                position.ValueRW.XY += movement.Displacement;
+                position.ValueRW.Height = movement.Height;
+                motion.ValueRW.Velocity = new float3(movement.Velocity, movement.VerticalVelocity);
             }
         }
 

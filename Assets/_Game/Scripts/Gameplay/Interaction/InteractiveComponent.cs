@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 
 namespace Emergence.Gameplay.Interaction
@@ -9,6 +10,21 @@ namespace Emergence.Gameplay.Interaction
     }
 
     public struct InteractiveComponent : IComponentData { }
+
+    [Flags]
+    public enum InteractionForms
+    {
+        Solid = 1,
+        Liquid = 2,
+        Gas = 4,
+        All = Solid | Liquid | Gas
+    }
+
+    public struct InteractionRequirementComponent : IComponentData
+    {
+        public float MinimumHeight;
+        public InteractionForms AllowedForms;
+    }
 
     public struct InteractionStateComponent : IComponentData
     {

@@ -22,6 +22,7 @@ namespace Emergence.Gameplay.Interaction.Editor
             var manager = world.EntityManager;
             var player = manager.CreateEntity(typeof(PlayerTagComponent), typeof(PlayerInputComponent), typeof(PlayerFormComponent));
             var point = manager.CreateEntity(typeof(InteractiveComponent), typeof(InteractionStateComponent));
+            manager.AddComponentData(point, new InteractionRequirementComponent { AllowedForms = InteractionForms.All });
             manager.AddBuffer<InteractionOverlapComponent>(point);
             using var scene = new PhysicsChecksScene(world);
             scene.AddBody(manager, player);
@@ -39,8 +40,9 @@ namespace Emergence.Gameplay.Interaction.Editor
                 if (!condition) throw new InvalidOperationException("FAIL: " + label);
                 passed++;
             }
-            void Tick(float x, bool pressed, PlayerFormKind form = PlayerFormKind.Solid)
+            void Tick(float x, bool pressed, PlayerFormKind form = PlayerFormKind.Solid, float height = 0)
             {
+                manager.SetComponentData(player, new PlayerPositionComponent { XY = new float2(x, 0), Height = height });
                 manager.SetComponentData(player, new PlayerInputComponent { InteractPressed = pressed });
                 manager.SetComponentData(player, new PlayerFormComponent { Value = form });
                 scene.Physics.Move(player, new float2(x, 0), float2.zero, float2.zero, (int)form);
@@ -82,6 +84,36 @@ namespace Emergence.Gameplay.Interaction.Editor
             Tick(3, false);
             Check(manager.GetComponentData<InteractionStateComponent>(point).IsOccupied, "Inspector radius controls range");
 
+            manager.SetComponentData(point, new InteractionRequirementComponent
+            {
+                MinimumHeight = 3, AllowedForms = InteractionForms.Gas
+            });
+            Tick(0, true, PlayerFormKind.Gas, 2.99f);
+            Check(Take() == 0 && !manager.GetComponentData<InteractionStateComponent>(point).IsOccupied,
+                "Gas below minimum height cannot occupy or activate");
+            Tick(0, false, PlayerFormKind.Gas, 3);
+            Check(Take() == 1, "Rising in place to minimum height enters automatic range");
+            Tick(0, true, PlayerFormKind.Gas, 8);
+            Check(Take() == 0, "Minimum height has no upper limit and staying does not repeat");
+            Tick(0, false, PlayerFormKind.Liquid, 8);
+            Check(Take() == 0 && !manager.GetComponentData<InteractionStateComponent>(point).IsOccupied,
+                "High liquid cannot occupy gas-only point");
+            Tick(0, false, PlayerFormKind.Gas, 8);
+            Check(Take() == 1, "Changing back to allowed form enters range again");
+            manager.AddComponent<DeadTagComponent>(player);
+            Tick(0, true, PlayerFormKind.Gas, 8);
+            Check(Take() == 0 && !manager.GetComponentData<InteractionStateComponent>(point).IsOccupied,
+                "Dead player cannot occupy interaction point");
+            manager.SetComponentEnabled<DeadTagComponent>(player, false);
+            manager.SetComponentData(point, new InteractionStateComponent());
+            Tick(0, true, PlayerFormKind.Gas, 2);
+            Check(Take() == 0, "Manual interaction rejects insufficient height");
+            Tick(0, true, PlayerFormKind.Solid, 3);
+            Check(Take() == 0, "Manual interaction rejects disallowed form");
+            Tick(0, true, PlayerFormKind.Gas, 3);
+            Check(Take() == 1, "Manual interaction accepts gas at minimum height");
+            manager.SetComponentData(point, new InteractionRequirementComponent { AllowedForms = InteractionForms.All });
+
             var obstacle = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent),
                 typeof(ObstacleDestructibleTagComponent));
             var blocking = scene.AddObstacle(obstacle, new Vector2(1.402f, 0), new Vector2(2, 2));
@@ -91,6 +123,14 @@ namespace Emergence.Gameplay.Interaction.Editor
                 "Same E request reaches interaction and obstacle destruction");
             scene.Physics.UnregisterInteraction(point);
             Check(!range.enabled, "Unregister disables trigger");
+            scene.Physics.RegisterInteraction(point, range, 1 << 31);
+            UnityEngine.Object.DestroyImmediate(range);
+            scene.Physics.UnregisterInteraction(point);
+            var replacement = root.AddComponent<CircleCollider2D>();
+            replacement.isTrigger = true;
+            scene.Physics.RegisterInteraction(point, replacement, 1 << 31);
+            scene.Physics.UnregisterInteraction(point);
+            Check(!replacement.enabled, "Destroyed trigger unregisters fully and permits registration again");
             return passed + " interaction checks passed.";
         }
     }

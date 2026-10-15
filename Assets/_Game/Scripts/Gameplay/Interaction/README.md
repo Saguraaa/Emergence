@@ -8,6 +8,13 @@
 `interactionLayers` 过滤参与范围查询的 Layer，默认为 Actor。范围查询由 PhysicsSystem 完成，不使用 Unity 碰撞回调。
 交互点默认不阻挡移动，三种玩家形态均可交互；多个交互点重叠时，每个符合条件的点都会响应。
 
+`minimumHeight` 为最低交互高度，默认 0，无高度上限；`allowedForms` 默认 All，可只勾选 Gas。
+例如 minimumHeight=3、allowedForms=Gas：玩家必须是气态且 Height >= 3 才满足条件。
+这些参数初始化写入 InteractionRequirementComponent；二维范围仍由地面投影上的 triggerRange 决定。
+高处交互点的精灵可以抬高，triggerRange 不随表现高度移动。
+InteractionSystem 在二维重叠候选中筛选存活、形态和高度条件，只有满足全部条件才算占用。
+EnterRange 因而支持在范围内原地升高触发一次；降低高度或切为不允许的形态后，再满足条件可重新触发。
+
 ECS 保存交互方式、范围占用状态和待处理触发次数，InteractionSystem 判断触发规则。
 InteractionController 取出待处理次数并调用 Inspector 中的 `onActivated` UnityEvent，可绑定多个组件方法。
 玩法状态的变化仍应通过对应 System 完成；InteractionTextOutput 是供验收使用的文本输出组件。

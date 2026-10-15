@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Emergence.Gameplay.Physics;
+using Emergence.Gameplay.Obstacle;
+using Emergence.Gameplay.Player;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -28,6 +30,7 @@ namespace Emergence.Gameplay.Physics.Editor
 
         public void AddBody(EntityManager manager, Entity entity)
         {
+            if (!manager.HasComponent<PlayerPositionComponent>(entity)) manager.AddComponent<PlayerPositionComponent>(entity);
             var root = new GameObject("Physics checks player");
             SceneManager.MoveGameObjectToScene(root, scene);
             root.layer = 31;
@@ -44,8 +47,9 @@ namespace Emergence.Gameplay.Physics.Editor
             bodies.Add(entity);
         }
 
-        public BoxCollider2D AddObstacle(Entity entity, Vector2 position, Vector2 size)
+        public BoxCollider2D AddObstacle(Entity entity, Vector2 position, Vector2 size, float height = 1)
         {
+            Physics.EntityManager.AddComponentData(entity, new ObstacleHeightComponent { Height = height });
             var root = new GameObject("Physics checks obstacle");
             SceneManager.MoveGameObjectToScene(root, scene);
             root.layer = 30;

@@ -3,6 +3,7 @@ using Emergence.Gameplay.Interaction;
 using Emergence.Gameplay.Physics;
 using Emergence.WorldView;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Emergence.Bootstrap
@@ -10,6 +11,8 @@ namespace Emergence.Bootstrap
     public sealed class InteractionBootstrap : MonoBehaviour
     {
         [SerializeField] private InteractionMode interactionMode;
+        [SerializeField, Min(0)] private float minimumHeight;
+        [SerializeField] private InteractionForms allowedForms = InteractionForms.All;
         [SerializeField] private Collider2D triggerRange;
         [SerializeField] private LayerMask interactionLayers;
         [SerializeField] private InteractionController controller;
@@ -21,6 +24,10 @@ namespace Emergence.Bootstrap
         public void Initialize()
         {
             // 校验
+            if (!math.isfinite(minimumHeight) || minimumHeight < 0)
+                throw new InvalidOperationException(name + ": minimumHeight must be finite and nonnegative.");
+            if (allowedForms == 0 || (allowedForms & ~InteractionForms.All) != 0)
+                throw new InvalidOperationException(name + ": allowedForms must contain valid player forms.");
             if (controller == null) throw new MissingReferenceException(name + ": controller is required.");
             if (interactionView == null) throw new MissingReferenceException(name + ": interactionView is required.");
             if (triggerRange == null) throw new MissingReferenceException(name + ": triggerRange is required.");
@@ -35,7 +42,11 @@ namespace Emergence.Bootstrap
             // 初始化
             interactionView.Initialize();
             var manager = world.EntityManager;
-            interaction = manager.CreateEntity(typeof(InteractiveComponent), typeof(InteractionStateComponent));
+            interaction = manager.CreateEntity(typeof(InteractiveComponent), typeof(InteractionStateComponent), typeof(InteractionRequirementComponent));
+            manager.SetComponentData(interaction, new InteractionRequirementComponent
+            {
+                MinimumHeight = minimumHeight, AllowedForms = allowedForms
+            });
             manager.AddBuffer<InteractionOverlapComponent>(interaction);
             manager.SetName(interaction, name);
             manager.SetComponentData(interaction, new InteractionStateComponent { Mode = interactionMode });

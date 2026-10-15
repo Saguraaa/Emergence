@@ -43,8 +43,9 @@ namespace Emergence.Gameplay.Respawn
                 // 没有启用点时保留死亡状态；启用点后再复活。
                 if (point == Entity.Null) continue;
                 var spawn = SystemAPI.GetComponent<RespawnPointComponent>(point);
-                var movement = physics.Move(entity, spawn.XY, float2.zero, float2.zero, (int)form.ValueRO.Value);
-                position.ValueRW = new PlayerPositionComponent { XY = spawn.XY + movement.Displacement, Height = spawn.Height };
+                var movement = physics.Move(entity, spawn.XY, float2.zero, float2.zero, (int)form.ValueRO.Value,
+                    spawn.Height, 0, 0);
+                position.ValueRW = new PlayerPositionComponent { XY = spawn.XY + movement.Displacement, Height = movement.Height };
                 EntityManager.GetBuffer<PhysicsContactComponent>(entity).Clear();
                 EntityManager.SetComponentEnabled<DeadTagComponent>(entity, false);
                 Respawned?.Invoke(entity);
