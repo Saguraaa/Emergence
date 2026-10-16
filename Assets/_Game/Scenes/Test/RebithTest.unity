@@ -927,6 +927,9 @@ GameObject:
   - component: {fileID: 854907091}
   - component: {fileID: 854907090}
   - component: {fileID: 854907093}
+  - component: {fileID: 854907095}
+  - component: {fileID: 854907094}
+  - component: {fileID: 854907096}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1052,6 +1055,48 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &854907094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854907089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03846fd34fa64ab46befd38b19a00bb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.CameraView
+  targetCamera: {fileID: 854907091}
+  offset: {x: 0, y: 0}
+  smoothTime: 0.2
+  viewportMargin: 0.2
+--- !u!114 &854907095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854907089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bebc56cfcd283c45828dc4133163809, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Camera.CameraController
+--- !u!114 &854907096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854907089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f2449c887a8989429e6d99e6bfd4546, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.CameraBootstrap
+  controller: {fileID: 854907095}
+  cameraView: {fileID: 854907094}
 --- !u!1 &886834188
 GameObject:
   m_ObjectHideFlags: 0
@@ -6400,6 +6445,8 @@ MonoBehaviour:
   inputBootstrap: {fileID: 89830883}
   environmentBootstrap: {fileID: 1164964011}
   playerBootstrap: {fileID: 444064329}
+  cameraBootstraps:
+  - {fileID: 854907096}
   obstacleBootstraps: []
   interactionBootstraps:
   - {fileID: 205097392}

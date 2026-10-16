@@ -26,7 +26,9 @@ namespace Emergence.Bootstrap
             // 校验
             if (!math.isfinite(minimumHeight) || minimumHeight < 0)
                 throw new InvalidOperationException(name + ": minimumHeight must be finite and nonnegative.");
-            if (allowedForms == 0 || (allowedForms & ~InteractionForms.All) != 0)
+            // Unity 的 Flags Inspector 使用 -1 表示 Everything；ECS 只保存已定义的形态位。
+            InteractionForms forms = (int)allowedForms == -1 ? InteractionForms.All : allowedForms;
+            if (forms == 0 || (forms & ~InteractionForms.All) != 0)
                 throw new InvalidOperationException(name + ": allowedForms must contain valid player forms.");
             if (controller == null) throw new MissingReferenceException(name + ": controller is required.");
             if (interactionView == null) throw new MissingReferenceException(name + ": interactionView is required.");
@@ -45,7 +47,7 @@ namespace Emergence.Bootstrap
             interaction = manager.CreateEntity(typeof(InteractiveComponent), typeof(InteractionStateComponent), typeof(InteractionRequirementComponent));
             manager.SetComponentData(interaction, new InteractionRequirementComponent
             {
-                MinimumHeight = minimumHeight, AllowedForms = allowedForms
+                MinimumHeight = minimumHeight, AllowedForms = forms
             });
             manager.AddBuffer<InteractionOverlapComponent>(interaction);
             manager.SetName(interaction, name);

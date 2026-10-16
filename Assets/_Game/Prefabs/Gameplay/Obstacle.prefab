@@ -156,6 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
   colliderBounds: {fileID: 7219394777433498156}
   isDestructible: 0
+  obstacleHeight: 1
   controller: {fileID: 8101387848117685791}
   obstacleView: {fileID: 1642839875713257286}
 --- !u!114 &1642839875713257286

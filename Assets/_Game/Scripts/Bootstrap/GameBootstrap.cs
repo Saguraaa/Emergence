@@ -7,6 +7,7 @@ namespace Emergence.Bootstrap
         [SerializeField] private InputBootstrap inputBootstrap;
         [SerializeField] private EnvironmentBootstrap environmentBootstrap;
         [SerializeField] private PlayerBootstrap playerBootstrap;
+        [SerializeField] private CameraBootstrap[] cameraBootstraps = new CameraBootstrap[0];
         [SerializeField] private ObstacleBootstrap[] obstacleBootstraps = new ObstacleBootstrap[0];
         [SerializeField] private InteractionBootstrap[] interactionBootstraps = new InteractionBootstrap[0];
         [SerializeField] private RespawnBootstrap[] respawnBootstraps = new RespawnBootstrap[0];
@@ -20,6 +21,10 @@ namespace Emergence.Bootstrap
             if (inputBootstrap == null) throw new MissingReferenceException($"{name}: {nameof(inputBootstrap)} is required.");
             if (environmentBootstrap == null) throw new MissingReferenceException($"{name}: {nameof(environmentBootstrap)} is required.");
             if (playerBootstrap == null) throw new MissingReferenceException($"{name}: {nameof(playerBootstrap)} is required.");
+            if (cameraBootstraps == null) throw new MissingReferenceException(name + ": cameraBootstraps is required.");
+            for (int i = 0; i < cameraBootstraps.Length; i++)
+                if (cameraBootstraps[i] == null)
+                    throw new MissingReferenceException($"{name}: cameraBootstraps[{i}] is required.");
             if (obstacleBootstraps == null) throw new MissingReferenceException(name + ": obstacleBootstraps is required.");
             for (int i = 0; i < obstacleBootstraps.Length; i++)
                 if (obstacleBootstraps[i] == null)
@@ -39,11 +44,13 @@ namespace Emergence.Bootstrap
             foreach (var interactionBootstrap in interactionBootstraps) interactionBootstrap.Initialize();
             foreach (var respawnBootstrap in respawnBootstraps) respawnBootstrap.Initialize();
             playerBootstrap.Initialize();
+            foreach (var cameraBootstrap in cameraBootstraps) cameraBootstrap.Initialize();
         }
 
         private void Shutdown()
         {
             // 先停止玩家访问，再释放环境和输入；错误直接交给 Unity 报告。
+            for (int i = cameraBootstraps.Length - 1; i >= 0; i--) cameraBootstraps[i].Shutdown();
             playerBootstrap.Shutdown();
             for (int i = respawnBootstraps.Length - 1; i >= 0; i--) respawnBootstraps[i].Shutdown();
             for (int i = interactionBootstraps.Length - 1; i >= 0; i--) interactionBootstraps[i].Shutdown();

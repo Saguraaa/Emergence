@@ -237,6 +237,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.InteractionBootstrap
   interactionMode: 0
+  minimumHeight: 0
+  allowedForms: 7
   triggerRange: {fileID: 3464261649789625551}
   interactionLayers:
     serializedVersion: 2
