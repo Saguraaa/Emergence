@@ -79,8 +79,12 @@ namespace Emergence.Gameplay.Physics
             if (!math.isfinite(height) || height < 0)
                 throw new ArgumentException("Physics obstacle height must be finite and nonnegative.");
             ValidateCollider(collider);
+            if (collider.attachedRigidbody != null &&
+                (collider.attachedRigidbody.bodyType != RigidbodyType2D.Static || !collider.attachedRigidbody.simulated))
+                throw new InvalidOperationException(collider.name + ": obstacle requires no Rigidbody2D or a simulated Static Rigidbody2D.");
             obstacles.Add(entity, collider);
             entities.Add(collider, entity);
+            collider.enabled = true;
         }
 
         public void RegisterInteraction(Entity entity, Collider2D collider, LayerMask interactionLayers)
@@ -134,7 +138,9 @@ namespace Emergence.Gameplay.Physics
 
         public void UnregisterObstacle(Entity entity)
         {
-            entities.Remove(obstacles[entity]);
+            var collider = obstacles[entity];
+            if (collider != null) collider.enabled = false;
+            entities.Remove(collider);
             obstacles.Remove(entity);
         }
 

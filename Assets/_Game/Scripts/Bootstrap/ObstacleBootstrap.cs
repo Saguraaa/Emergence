@@ -10,7 +10,7 @@ namespace Emergence.Bootstrap
 {
     public sealed class ObstacleBootstrap : MonoBehaviour
     {
-        [SerializeField] private BoxCollider2D colliderBounds;
+        [SerializeField] private Collider2D colliderBounds;
         [SerializeField] private bool isDestructible;
         [SerializeField, Min(0)] private float obstacleHeight = 1f;
         [SerializeField] private ObstacleController controller;
@@ -35,14 +35,13 @@ namespace Emergence.Bootstrap
             physics = world.GetExistingSystemManaged<PhysicsSystem>();
             if (physics == null) throw new InvalidOperationException("Default ECS World requires PhysicsSystem.");
             // 初始化
-            obstacleView.Initialize();
-            colliderBounds.enabled = true;
             obstacle = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent), typeof(ObstacleHeightComponent));
             manager.SetComponentData(obstacle, new ObstacleHeightComponent { Height = obstacleHeight });
             manager.SetName(obstacle, name);
             physics.RegisterObstacle(obstacle, colliderBounds);
             if (isDestructible) manager.AddComponent<ObstacleDestructibleTagComponent>(obstacle);
-            controller.Initialize(world, obstacle, obstacleView);
+            if (obstacleView.Initialize()) controller.Initialize(world, obstacle, obstacleView);
+            else controller.Shutdown();
         }
 
         public void Shutdown()

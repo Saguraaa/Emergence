@@ -6,12 +6,12 @@ namespace Emergence.WorldView
     {
         [SerializeField] private SpriteRenderer spriteRenderer;
 
-        public void Initialize()
+        public bool Initialize()
         {
-            // 校验
-            if (spriteRenderer == null) throw new MissingReferenceException(name + ": spriteRenderer is required.");
-            // 初始化
+            // 无独立精灵的障碍物只参与碰撞，不启动显示刷新。
+            if (spriteRenderer == null) return false;
             Refresh(false);
+            return true;
         }
 
         public void Refresh(bool isDestroyed)
