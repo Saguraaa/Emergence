@@ -4,7 +4,13 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Game/Scenes/Level/Tutorial01.unity
+    guid: c00aaf3a560c99d4db177fb17cf66bdc
+  - enabled: 1
+    path: Assets/_Game/Scenes/Level/PipeMap.unity
+    guid: 93d05937fd0e16346bc4707b071f7d60
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

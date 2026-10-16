@@ -18,7 +18,6 @@ namespace Emergence.Bootstrap
         [SerializeField] private PlayerFormKind initialForm = PlayerFormKind.Solid;
         [SerializeField] private PlayerController controller;
         [SerializeField] private PlayerView playerView;
-        [SerializeField] private InputSettingsController inputSettings;
         [SerializeField, Min(0)] private float initialHeight;
         [SerializeField] private Rigidbody2D physicsBody;
         [SerializeField] private BoxCollider2D solidCollider;
@@ -31,7 +30,7 @@ namespace Emergence.Bootstrap
         private World world;
         private Entity player;
 
-        public void Initialize()
+        public void Initialize(InputSettingsController inputSettings)
         {
             // 校验
             if (solidConfig == null) throw new MissingReferenceException(name + ": solidConfig is required.");

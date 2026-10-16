@@ -6704,7 +6704,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: allowedForms
-      value: -1
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: interactionMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6790,17 +6794,40 @@ PrefabInstance:
       propertyPath: m_Name
       value: InteractionPoint_FloorDrain
       objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1696958056}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Transfer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Emergence.Gameplay.InteractCallback.SceneTransferAction, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1696958056}
   m_SourcePrefab: {fileID: 100100000, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
 --- !u!114 &1696958054 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
   m_PrefabInstance: {fileID: 1696958053}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1696958055}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd055c43a46c91f4cb897600ce86456c, type: 3}
@@ -13310,6 +13337,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7852458396890309982}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1696958055 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+  m_PrefabInstance: {fileID: 1696958053}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1696958056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696958055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef2f73b73b86ae04f9d5fdf4ef52cd85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.InteractCallback.SceneTransferAction
+  gameBootstrap: {fileID: 673608122}
+  destinationScene: {fileID: 102900000, guid: 93d05937fd0e16346bc4707b071f7d60, type: 3}
+  destinationScenePath: Assets/_Game/Scenes/Level/PipeMap.unity
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

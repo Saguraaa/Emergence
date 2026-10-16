@@ -26,3 +26,16 @@ ObstacleSystem 在两个玩法读取者执行后清除共享 InteractPressed。
 代码检查菜单：`Emergence/Checks/Interaction`。
 场景：`Assets/_Game/Scenes/Test/ActivativeTest.unity`。玩家附近的交互点采用按键模式，onActivated 绑定 InteractionTextOutput.Output，输出 `ActivativeTest: interaction activated.`。
 场景运行验收由用户完成。
+
+## 地漏传送（第一阶段）
+
+Tutorial01 的 `InteractionPoint_FloorDrain` 使用 `EnterRange`，`allowedForms` 仅允许 Liquid。
+`onActivated` 绑定同物体上的 `SceneTransferAction.Transfer`；目标场景通过 Inspector 拖入，编辑器自动保存运行时加载路径。
+`gameBootstrap` 绑定当前场景总开关，切换前停用总开关，通过 OnDisable 按顺序清理 Controller、物理注册和 ECS 实体。
+Tutorial01 与 PipeMap 均须启用在构建场景列表中。
+
+PipeMap 使用本场景的玩家、输入、环境和摄像机；玩家初始形态为 Liquid，固定出生位置为 `(-5.5, 16)`，Height 为 0。
+本阶段重新创建玩家，不迁移旧场景的运行时参数。后续阶段再配置管壁碰撞与侧视下落。
+
+验收：固态、气态进入第一个地漏均不切换；液态在范围外不切换，进入后无需按 E 即进入 PipeMap。
+到达后玩家应位于固定位置，旧场景已卸载，且只存在一个玩家和一个环境实体。停止后再次运行也应正常。

@@ -44,12 +44,12 @@ namespace Emergence.Bootstrap
                     throw new MissingReferenceException($"{name}: npcBootstraps[{i}] is required.");
 
             // 初始化
-            inputBootstrap.Initialize();
+            var inputSettings = inputBootstrap.Initialize();
             environmentBootstrap.Initialize();
             foreach (var obstacleBootstrap in obstacleBootstraps) obstacleBootstrap.Initialize();
             foreach (var interactionBootstrap in interactionBootstraps) interactionBootstrap.Initialize();
             foreach (var respawnBootstrap in respawnBootstraps) respawnBootstrap.Initialize();
-            playerBootstrap.Initialize();
+            playerBootstrap.Initialize(inputSettings);
             foreach (var npcBootstrap in npcBootstraps) npcBootstrap.Initialize();
             foreach (var cameraBootstrap in cameraBootstraps) cameraBootstrap.Initialize();
         }
@@ -67,6 +67,6 @@ namespace Emergence.Bootstrap
             inputBootstrap.Shutdown();
         }
 
-        private void OnDestroy() => Shutdown();
+        private void OnDisable() => Shutdown();
     }
 }
