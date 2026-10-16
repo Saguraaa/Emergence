@@ -68,8 +68,13 @@ TrailRenderer，缺失立即报错。初始化直接应用出生形态；shownFo
 PlayerController 在场景中默认禁用，由 Initialize() 开启，Shutdown() 关闭并解除事件订阅。
 不维护 initialized 标志，不通过 Awake()/OnEnable() 自动装配。
 View 的表现对象随 GameObject 销毁，不额外实现重复关闭或缩放恢复。
-Inspector 中的 moveAction 和 interactAction 使用 InputActionReference，
-分别选择 Player/Move 和 Player/Interact；要求 Move 提供 Vector2、Interact 为 Button。
+Inspector 中的 moveAction、interactAction 和 showDamageFieldAction 使用 InputActionReference，
+分别选择 Player/Move、Player/Interact 和 Player/ShowDamageField；要求 Move 提供 Vector2，其他两个为 Button。
+
+伤害场是 Player 的能力：DamageFieldComponent 与位置、形态等数据保存在同一玩家实体上，
+PlayerSystem 在移动完成后执行伤害场扣减。PlayerController 读取 Alt 并调用 PlayerView 显示玩家子节点。
+没有独立的伤害场实体、Controller、View、Bootstrap、System 或 Prefab。
+外观保存为共享圆环 Mesh、材质和空心圆贴图；具体配置与验收见同目录 DamageField.md。
 
 InputSettingsController 创建唯一运行时 InputActionAsset 副本，
 按 Inspector 引用的 Action ID 直接解析并缓存对应动作，避免 GUID 转字符串。

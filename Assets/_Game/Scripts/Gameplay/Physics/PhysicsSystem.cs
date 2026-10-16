@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Emergence.Gameplay.Obstacle;
 using Emergence.Gameplay.Interaction;
 using Emergence.Gameplay.Player;
+using Emergence.Gameplay.NPC;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace Emergence.Gameplay.Physics
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     [UpdateAfter(typeof(PlayerSystem))]
+    [UpdateAfter(typeof(NPCSystem))]
     [UpdateBefore(typeof(ObstacleSystem))]
     public partial class PhysicsSystem : SystemBase
     {
@@ -31,12 +33,13 @@ namespace Emergence.Gameplay.Physics
             public Collider2D ActiveShape;
             public ContactFilter2D Filter;
             public PhysicsScene2D Scene;
+            public bool IsPlayer;
         }
 
         public void RegisterBody(Entity entity, Rigidbody2D rigidbody, Collider2D[] shapes, LayerMask collisionLayers)
         {
             if (!EntityManager.Exists(entity) || !EntityManager.HasBuffer<PhysicsContactComponent>(entity) ||
-                !EntityManager.HasComponent<PlayerPositionComponent>(entity))
+                !(EntityManager.HasComponent<PlayerPositionComponent>(entity) ^ EntityManager.HasComponent<NPCPositionComponent>(entity)))
                 throw new ArgumentException("Physics body requires a live entity with position and PhysicsContactComponent.");
             if (rigidbody == null) throw new MissingReferenceException("Physics body requires Rigidbody2D.");
             if (rigidbody.bodyType != RigidbodyType2D.Kinematic || !rigidbody.simulated)
@@ -54,11 +57,18 @@ namespace Emergence.Gameplay.Physics
             bodies.Add(entity, new Body
             {
                 Rigidbody = rigidbody, Shapes = shapes, ActiveShape = shapes[0],
-                Filter = filter, Scene = rigidbody.gameObject.scene.GetPhysicsScene2D()
+                Filter = filter, Scene = rigidbody.gameObject.scene.GetPhysicsScene2D(),
+                IsPlayer = EntityManager.HasComponent<PlayerPositionComponent>(entity)
             });
             foreach (var shape in shapes) entities.Add(shape, entity);
             rigidbody.linearVelocity = Vector2.zero;
             rigidbody.angularVelocity = 0;
+            rigidbody.constraints |= RigidbodyConstraints2D.FreezeRotation;
+            rigidbody.position = bodies[entity].IsPlayer
+                ? (Vector2)EntityManager.GetComponentData<PlayerPositionComponent>(entity).XY
+                : (Vector2)EntityManager.GetComponentData<NPCPositionComponent>(entity).XY;
+            // 注册后即可参与其他对象的查询；当前形状在首次移动时按实际形态切换。
+            for (int i = 0; i < shapes.Length; i++) shapes[i].enabled = i == 0;
         }
 
         public void RegisterObstacle(Entity entity, Collider2D collider)
@@ -114,7 +124,11 @@ namespace Emergence.Gameplay.Physics
         public void UnregisterBody(Entity entity)
         {
             var body = bodies[entity];
-            foreach (var shape in body.Shapes) entities.Remove(shape);
+            foreach (var shape in body.Shapes)
+            {
+                entities.Remove(shape);
+                if (shape != null) shape.enabled = false;
+            }
             bodies.Remove(entity);
         }
 
@@ -129,7 +143,10 @@ namespace Emergence.Gameplay.Physics
         public (float2 Displacement, float2 Velocity, float Height, float VerticalVelocity) Move(
             Entity entity, float2 origin, float2 displacement, float2 velocity, int shapeIndex) =>
             Move(entity, origin, displacement, velocity, shapeIndex,
-                EntityManager.GetComponentData<PlayerPositionComponent>(entity).Height, 0, 0);
+                ReadHeight(entity, bodies[entity]), 0, 0);
+
+        private float ReadHeight(Entity entity, Body body) => body.IsPlayer
+            ? EntityManager.GetComponentData<PlayerPositionComponent>(entity).Height : 0;
 
         public (float2 Displacement, float2 Velocity, float Height, float VerticalVelocity) Move(
             Entity entity, float2 origin, float2 displacement, float2 velocity, int shapeIndex,
@@ -250,7 +267,7 @@ namespace Emergence.Gameplay.Physics
             }
             foreach (var (entity, body) in bodies)
             {
-                float height = EntityManager.GetComponentData<PlayerPositionComponent>(entity).Height;
+                float height = ReadHeight(entity, body);
                 var contacts = EntityManager.GetBuffer<PhysicsContactComponent>(entity);
                 contacts.Clear();
                 FindNearby(body);
