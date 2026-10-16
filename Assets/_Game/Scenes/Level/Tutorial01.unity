@@ -605,7 +605,6 @@ MonoBehaviour:
   playerBootstrap: {fileID: 118715396}
   cameraBootstraps:
   - {fileID: 769515883}
-  terrainBootstraps: []
   obstacleBootstraps:
   - {fileID: 1991470116}
   - {fileID: 629186498}
@@ -618,6 +617,11 @@ MonoBehaviour:
   respawnBootstraps:
   - {fileID: 629186496}
   npcBootstraps: []
+--- !u!1 &674937666 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+  m_PrefabInstance: {fileID: 871608505}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &769515878
 GameObject:
   m_ObjectHideFlags: 0
@@ -894,24 +898,67 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: m_Name
-      value: InteractionPoint_Placeholder
+      value: InteractionPoint_Die
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 871608510}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Die
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Emergence.Gameplay.InteractCallback.PlayerDeathAction, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 871608510}
   m_SourcePrefab: {fileID: 100100000, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
 --- !u!114 &871608506 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
   m_PrefabInstance: {fileID: 871608505}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 674937666}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd055c43a46c91f4cb897600ce86456c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.InteractionBootstrap
+--- !u!114 &871608510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674937666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9510fc654996cc249be46adc715bd058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.InteractCallback.PlayerDeathAction
 --- !u!1001 &1013312060
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -923,6 +970,10 @@ PrefabInstance:
     - target: {fileID: 3376464062877889624, guid: 0cbe6a5f1ffe2674781ded9e035c3cbe, type: 3}
       propertyPath: initialForm
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6688074967646940521, guid: 0cbe6a5f1ffe2674781ded9e035c3cbe, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6997318985518376934, guid: 0cbe6a5f1ffe2674781ded9e035c3cbe, type: 3}
       propertyPath: m_LocalPosition.x
@@ -962,6 +1013,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6997318985518376934, guid: 0cbe6a5f1ffe2674781ded9e035c3cbe, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214982149109028910, guid: 0cbe6a5f1ffe2674781ded9e035c3cbe, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8254813558972532376, guid: 0cbe6a5f1ffe2674781ded9e035c3cbe, type: 3}
@@ -1162,6 +1217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e73842bafc994900a8257d67040ed7d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.EnvironmentBootstrap
+  movementMode: 0
   windVelocity: {x: 0, y: 0, z: 1}
   gravity: 9.81
 --- !u!4 &1483500419

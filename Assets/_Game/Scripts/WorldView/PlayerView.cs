@@ -19,7 +19,9 @@ namespace Emergence.WorldView
         private Vector3 solidScale;
         private Vector3 gasScale;
         private Vector3 gasPosition;
+        private float gasSpriteCenterX;
         private Vector3 gasParticlesPosition;
+        private bool facingLeft;
         private Vector3 shadowScale;
         private float shadowWidth;
         // 仅缓存已显示形态，避免每帧重新播放粒子；权威形态仍在 ECS。
@@ -76,7 +78,9 @@ namespace Emergence.WorldView
             respawnStarted = float.NegativeInfinity;
             gasScale = gasBody.transform.localScale;
             gasPosition = gasBody.transform.localPosition;
+            gasSpriteCenterX = gasBody.sprite.bounds.center.x;
             gasParticlesPosition = gasParticles.transform.localPosition;
+            facingLeft = false;
             liquidView.Initialize(liquidBody);
             shadowScale = shadow.transform.localScale;
             shadowWidth = resolvedShadowWidth;
@@ -119,12 +123,16 @@ namespace Emergence.WorldView
             float pulse = Mathf.Sin(Time.time * 10) * 0.08f * amount;
             solidBody.transform.localScale = Vector3.Scale(solidScale, new Vector3(1 + pulse, 1 - pulse, 1));
             Vector2 velocity = new(motion.Velocity.x, motion.Velocity.y);
-            if (form == PlayerFormKind.Liquid) liquidView.Refresh(velocity);
+            if (Mathf.Abs(velocity.x) > 0.01f) facingLeft = velocity.x < 0;
+            if (form == PlayerFormKind.Liquid) liquidView.Refresh(velocity, facingLeft);
             if (form == PlayerFormKind.Gas)
             {
                 float breath = Mathf.Sin(Time.time * 2.2f) * 0.025f;
+                gasBody.flipX = facingLeft;
                 gasBody.transform.localScale = Vector3.Scale(gasScale, new Vector3(1 + breath, 1 - breath, 1));
-                gasBody.transform.localPosition = gasPosition + Vector3.up * (Mathf.Sin(Time.time * 1.8f) * 0.06f);
+                // 非居中 Pivot 的图片翻转后仍保持原来的显示中心。
+                float flipOffset = facingLeft ? 2 * gasSpriteCenterX * gasBody.transform.localScale.x : 0;
+                gasBody.transform.localPosition = gasPosition + new Vector3(flipOffset, Mathf.Sin(Time.time * 1.8f) * 0.06f, 0);
                 gasParticles.transform.localPosition = gasParticlesPosition - (Vector3)velocity.normalized * 0.25f;
             }
             RefreshShadow(position, form);

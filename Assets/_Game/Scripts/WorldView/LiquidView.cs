@@ -103,7 +103,7 @@ namespace Emergence.WorldView
             mesh.RecalculateBounds();
         }
 
-        public void Refresh(Vector2 velocity)
+        public void Refresh(Vector2 velocity, bool flipX)
         {
             float dt = Time.deltaTime;
             if (dt <= 0) return;
@@ -124,6 +124,8 @@ namespace Emergence.WorldView
             for (int i = 0; i < vertices.Length; i++)
             {
                 Vector3 rest = restVertices[i];
+                // 只镜像原图网格；流动与回弹继续使用实际移动方向。
+                if (flipX) rest.x = 2 * spriteBounds.center.x - rest.x;
                 Vector2 relative = (Vector2)(rest - spriteBounds.center);
                 float phase = relative.x / spriteBounds.size.x * 4 + relative.y / spriteBounds.size.y * 6;
                 Vector2 ripple = new(Mathf.Sin(time * 2.8f + phase), Mathf.Cos(time * 3.4f - phase));
