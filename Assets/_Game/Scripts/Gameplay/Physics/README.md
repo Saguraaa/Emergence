@@ -45,4 +45,20 @@ Actor 和 Obstacle Layer 已配置；参与查询的 Collider 必须由所属门
 管壁沿用 ObstacleHeightComponent 的高度规则；独立 Height 不超过障碍高度时阻挡，超过时放行。
 关闭时先停止移动对象及 Controller，再解除物理注册、关闭 Collider、销毁实体。
 
-本阶段沿用当前 XY 移动，可用方向输入检查两侧阻挡、底部阻挡、横管和弯头连通；自动下落在第三阶段实现。
+管壁检查覆盖两侧阻挡、底部阻挡、横管和直角连通；侧视移动规则如下。
+
+## 侧视移动（第三阶段）
+
+EnvironmentBootstrap 的 Movement Mode 默认为 TopDown，现有俯视场景保持原来的 XY 输入与独立 Height 规则。
+PipeMap 选择 SideView，Gravity 为 9.81，Wind Velocity 为 `(0, 1, 0)`，玩家初始 Height 为 0。
+模式初始化写入 EnvironmentComponent，运行规则由 PlayerSystem 执行。
+
+SideView 只读取左右输入，忽略上下输入且不因此降低水平移动量。固态保留水平加减速，液态直接响应水平输入。
+键盘 Move 复合输入使用 Digital 模式保留原始轴值；TopDown 仍由 PlayerSystem 统一归一化斜向输入，手柄保留模拟量。
+固态、液态在 Velocity.y 中累计重力，用匀加速位移积分，不再被每步水平输入覆盖；气态由 WindVelocity.xy 驱动。
+气态转固态或液态时取消上浮，已有下落速度继续继承。侧视模式的 Height 与 Velocity.z 保持 0。
+所有期望位移仍经过同一个 PhysicsSystem.Move；落地清除向下速度，碰侧壁后继续下落，气态受到顶部阻挡。
+接触约束复用已有距离查询，并包含 Unity 的接触边距，同时消除朝向表面的位移与速度，避免静止后再次积累下落。
+不使用动态 Rigidbody 自主重力，不在 View 或 Controller 中计算下落。
+
+代码检查入口：`Emergence/Checks/Player Movement`，同时覆盖俯视回归、侧视积分、输入、形态转换和落地/碰壁/碰顶。

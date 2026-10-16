@@ -43,6 +43,7 @@ namespace Emergence.Gameplay.Player
         {
             float dt = SystemAPI.Time.DeltaTime;
             var environment = SystemAPI.GetSingleton<EnvironmentComponent>();
+            bool sideView = environment.MovementMode == MapMovementMode.SideView;
             // 先读取共用状态，再按形态读取对应参数；每个玩家每步只积分一次。
             foreach (var (position, motion, input, form, entity) in
                      SystemAPI.Query<RefRW<PlayerPositionComponent>, RefRW<PlayerMotionComponent>,
@@ -50,7 +51,9 @@ namespace Emergence.Gameplay.Player
                          .WithAll<PlayerTagComponent>().WithEntityAccess())
             {
                 if (SystemAPI.HasComponent<DeadTagComponent>(entity) && SystemAPI.IsComponentEnabled<DeadTagComponent>(entity)) continue;
-                float2 direction = Direction(input.ValueRO.Move);
+                float2 direction = sideView
+                    ? new float2(math.clamp(input.ValueRO.Move.x, -1, 1), 0)
+                    : Direction(input.ValueRO.Move);
                 float2 velocity;
                 switch (form.ValueRO.Value)
                 {
@@ -59,6 +62,7 @@ namespace Emergence.Gameplay.Player
                         var solid = SystemAPI.GetComponent<PlayerSolidComponent>(entity);
                         float magnitude = solid.MoveVelocityMagnitude;
                         float2 current = motion.ValueRO.Velocity.xy;
+                        if (sideView) current.y = 0;
                         float length = math.length(current);
                         if (length > magnitude) current *= magnitude / length;
                         float2 target = direction * magnitude;
@@ -80,12 +84,34 @@ namespace Emergence.Gameplay.Player
                     default:
                         throw new InvalidOperationException("PlayerFormComponent contains an unsupported form.");
                 }
-                var desiredPosition = position.ValueRO;
-                var desiredMotion = motion.ValueRO;
-                Integrate(ref desiredPosition, ref desiredMotion, velocity,
-                    form.ValueRO.Value == PlayerFormKind.Gas, environment, dt);
-                var movement = physics.Move(entity, position.ValueRO.XY, velocity * dt, velocity, (int)form.ValueRO.Value,
-                    position.ValueRO.Height, desiredPosition.Height - position.ValueRO.Height, desiredMotion.Velocity.z);
+                float2 displacement = velocity * dt;
+                float height = position.ValueRO.Height;
+                float heightDisplacement;
+                float verticalVelocity;
+                if (sideView)
+                {
+                    // 侧视模式中 Collider 随 XY.y 下落，独立 Height 不再参与移动。
+                    height = 0;
+                    heightDisplacement = 0;
+                    verticalVelocity = 0;
+                    if (form.ValueRO.Value != PlayerFormKind.Gas)
+                    {
+                        float previous = math.min(0, motion.ValueRO.Velocity.y);
+                        displacement.y = previous * dt - .5f * environment.Gravity * dt * dt;
+                        velocity.y = previous - environment.Gravity * dt;
+                    }
+                }
+                else
+                {
+                    var desiredPosition = position.ValueRO;
+                    var desiredMotion = motion.ValueRO;
+                    Integrate(ref desiredPosition, ref desiredMotion, velocity,
+                        form.ValueRO.Value == PlayerFormKind.Gas, environment, dt);
+                    heightDisplacement = desiredPosition.Height - height;
+                    verticalVelocity = desiredMotion.Velocity.z;
+                }
+                var movement = physics.Move(entity, position.ValueRO.XY, displacement, velocity, (int)form.ValueRO.Value,
+                    height, heightDisplacement, verticalVelocity);
                 position.ValueRW.XY += movement.Displacement;
                 position.ValueRW.Height = movement.Height;
                 motion.ValueRW.Velocity = new float3(movement.Velocity, movement.VerticalVelocity);

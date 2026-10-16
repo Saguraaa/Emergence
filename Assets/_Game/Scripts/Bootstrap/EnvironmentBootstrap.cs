@@ -8,7 +8,8 @@ namespace Emergence.Bootstrap
 {
     public sealed class EnvironmentBootstrap : MonoBehaviour
     {
-        [Header("XY: map wind; Z: height wind")]
+        [SerializeField] private MapMovementMode movementMode;
+        [Header("TopDown: XY map / Z height; SideView: XY map")]
         [SerializeField] private Vector3 windVelocity = new(0, 0, 1);
         [SerializeField, Min(0)] private float gravity = 9.81f;
         private World world;
@@ -17,6 +18,8 @@ namespace Emergence.Bootstrap
         public void Initialize()
         {
             // 校验
+            if (!Enum.IsDefined(typeof(MapMovementMode), movementMode))
+                throw new InvalidOperationException(name + ": movementMode is invalid.");
             if (!math.all(math.isfinite((float3)windVelocity)) || !math.isfinite(gravity) || gravity < 0)
                 throw new InvalidOperationException(name + ": wind must be finite; gravity must be finite and nonnegative.");
             world = World.DefaultGameObjectInjectionWorld;
@@ -27,7 +30,10 @@ namespace Emergence.Bootstrap
                 throw new InvalidOperationException("Only one environment owner is supported.");
             // 初始化
             environment = manager.CreateEntity(typeof(EnvironmentComponent));
-            manager.SetComponentData(environment, new EnvironmentComponent { WindVelocity = windVelocity, Gravity = gravity });
+            manager.SetComponentData(environment, new EnvironmentComponent
+            {
+                MovementMode = movementMode, WindVelocity = windVelocity, Gravity = gravity
+            });
         }
 
         public void Shutdown()

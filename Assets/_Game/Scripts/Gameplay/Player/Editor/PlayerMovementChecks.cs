@@ -68,7 +68,7 @@ namespace Emergence.Gameplay.Player.Editor
                 float3 Velocity() => manager.GetComponentData<PlayerMotionComponent>(player).Velocity;
                 void Check(bool condition, string name)
                 {
-                    if (!condition) throw new InvalidOperationException("FAIL: " + name + "; velocity=" + Velocity() + "; height=" + Position().Height);
+                    if (!condition) throw new InvalidOperationException("FAIL: " + name + "; velocity=" + Velocity() + "; XY=" + Position().XY + "; height=" + Position().Height);
                     report.AppendLine("PASS: " + name);
                     passed++;
                 }
@@ -176,6 +176,111 @@ namespace Emergence.Gameplay.Player.Editor
                         && manager.GetComponentData<PlayerFormComponent>(player).Value == form,
                         form + " executes only its own movement once per step");
                 }
+
+                void ResetSideView(PlayerFormKind form)
+                {
+                    Reset(form);
+                    manager.SetComponentData(environment, new EnvironmentComponent
+                    {
+                        MovementMode = MapMovementMode.SideView,
+                        WindVelocity = new float3(0, 1, 0), Gravity = 10
+                    });
+                }
+
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(60, float2.zero);
+                Check(math.abs(Position().XY.y + 5) < .001f && math.abs(Velocity().y + 10) < .001f &&
+                    Position().Height == 0 && Velocity().z == 0, "Side view falls in map Y with its collider");
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(60, new float2(0, 1));
+                Check(math.abs(Position().XY.y + 5) < .001f, "Side view ignores direct vertical input");
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(60, new float2(1, 1));
+                Check(math.distance(Position().XY, new float2(4, -5)) < .001f,
+                    "Side view vertical input does not reduce horizontal control");
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(60, new float2(.25f, 0));
+                Check(math.distance(Position().XY, new float2(1, -5)) < .001f,
+                    "Side view preserves partial analog horizontal input");
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(30, new float2(1, 0));
+                Tick(30, float2.zero);
+                Check(math.distance(Position().XY, new float2(2, -5)) < .001f && math.abs(Velocity().y + 10) < .001f,
+                    "Releasing liquid horizontal input preserves accumulated falling motion");
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(6, float2.zero, 1f / 30);
+                float sideY30 = Position().XY.y;
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(24, float2.zero, 1f / 120);
+                Check(math.abs(sideY30 - Position().XY.y) < .001f,
+                    "Side view gravity is consistent across timesteps");
+                ResetSideView(PlayerFormKind.Solid);
+                Tick(24, new float2(1, 0));
+                Check(math.abs(Velocity().x - 3) < .001f && math.abs(Velocity().y + 4) < .001f,
+                    "Side view solid accelerates horizontally while falling");
+                Tick(24, float2.zero);
+                Check(math.abs(Velocity().x) < .001f && math.abs(Velocity().y + 8) < .001f,
+                    "Side view solid decelerates horizontally without slowing gravity");
+                ResetSideView(PlayerFormKind.Solid);
+                manager.SetComponentData(player, new PlayerMotionComponent { Velocity = new float3(0, -30, 0) });
+                Tick(1, new float2(1, 0));
+                Check(math.abs(Velocity().x - .125f) < .001f && Velocity().y < -30,
+                    "Solid control magnitude never caps inherited falling velocity");
+                ResetSideView(PlayerFormKind.Gas);
+                Tick(60, new float2(0, -1));
+                Check(math.distance(Position().XY, new float2(0, 1)) < .001f && Position().Height == 0,
+                    "Side view gas follows vertical map wind instead of independent height");
+                manager.SetComponentData(environment, new EnvironmentComponent
+                {
+                    MovementMode = MapMovementMode.SideView,
+                    WindVelocity = new float3(2, -1, 0), Gravity = 10
+                });
+                Tick(60, new float2(1, 1));
+                Check(math.distance(Position().XY, new float2(3, 0)) < .001f,
+                    "Side view gas combines horizontal input and map wind");
+                ResetSideView(PlayerFormKind.Gas);
+                Tick(30, float2.zero);
+                PlayerSystem.SetForm(manager, player, PlayerFormKind.Liquid);
+                Tick(1, float2.zero);
+                Check(Position().XY.y < .5f && Velocity().y < 0,
+                    "Side view gas to liquid cancels ascent and starts falling");
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(30, float2.zero);
+                PlayerSystem.SetForm(manager, player, PlayerFormKind.Solid);
+                Tick(1, float2.zero);
+                Check(Velocity().y < -5, "Side view solid inherits an existing fall");
+
+                var floor = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent));
+                physicsScene.AddObstacle(floor, new Vector2(0, -5.5f), new Vector2(100, 1));
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(180, float2.zero);
+                float floorY = Position().XY.y;
+                Check(floorY > -4.61f && floorY < -4.55f && math.abs(Velocity().y) < .001f,
+                    "Side view liquid lands on a collider and clears falling velocity");
+                bool staysGrounded = true;
+                for (int i = 0; i < 60; i++)
+                {
+                    Tick(1, new float2(1, 0));
+                    staysGrounded &= math.abs(Position().XY.y - floorY) < .005f && math.abs(Velocity().y) < .001f;
+                }
+                Check(staysGrounded && math.abs(Position().XY.x - 4) < .001f,
+                    "Side view stays grounded on every fixed step while moving horizontally");
+                var sideWall = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent));
+                physicsScene.AddObstacle(sideWall, new Vector2(2.5f, 0), new Vector2(1, 20));
+                ResetSideView(PlayerFormKind.Liquid);
+                Tick(30, new float2(1, 0));
+                Check(Position().XY.x > 1.5f && Position().XY.x < 1.61f && math.abs(Position().XY.y + 1.25f) < .001f &&
+                    math.abs(Velocity().x) < .001f && math.abs(Velocity().y + 5) < .001f,
+                    "Side wall blocks horizontal movement while the player continues falling");
+                var ceiling = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent));
+                physicsScene.AddObstacle(ceiling, new Vector2(0, 2.5f), new Vector2(20, 1));
+                ResetSideView(PlayerFormKind.Gas);
+                Tick(180, float2.zero);
+                Check(Position().XY.y > 1.35f && Position().XY.y < 1.41f && math.abs(Velocity().y) < .001f && Position().Height == 0,
+                    "Side view gas is constrained by the ceiling collider");
+                physicsScene.Physics.SetObstacleEnabled(floor, false);
+                physicsScene.Physics.SetObstacleEnabled(sideWall, false);
+                physicsScene.Physics.SetObstacleEnabled(ceiling, false);
 
                 // 将另两种形态参数置为无效值，确认当前分支不读取它们。
                 foreach (PlayerFormKind form in Enum.GetValues(typeof(PlayerFormKind)))

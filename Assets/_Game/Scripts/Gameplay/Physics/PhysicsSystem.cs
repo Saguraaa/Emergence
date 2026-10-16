@@ -18,6 +18,7 @@ namespace Emergence.Gameplay.Physics
     public partial class PhysicsSystem : SystemBase
     {
         private const float ContactDistance = 0.002f;
+        private static float ContactTolerance => Physics2D.defaultContactOffset + ContactDistance;
         private const int MaxIterations = 4;
         private readonly Dictionary<Entity, Body> bodies = new();
         private readonly Dictionary<Collider2D, Entity> entities = new();
@@ -171,7 +172,7 @@ namespace Emergence.Gameplay.Physics
             Vector2 remaining = displacement;
             Vector2 resolvedVelocity = velocity;
 
-            position = ResolveOverlap(body, position, resolvedHeight);
+            position = ResolveOverlap(body, position, resolvedHeight, ref remaining, ref resolvedVelocity);
 
             for (int iteration = 0; iteration < MaxIterations && remaining.sqrMagnitude > 1e-10f; iteration++)
             {
@@ -196,7 +197,7 @@ namespace Emergence.Gameplay.Physics
             }
             body.Rigidbody.position = position;
             Physics2D.SyncTransforms();
-            position = ResolveOverlap(body, position, resolvedHeight);
+            position = ResolveOverlap(body, position, resolvedHeight, ref remaining, ref resolvedVelocity);
             return ((float2)(position - start), (float2)resolvedVelocity, resolvedHeight, verticalVelocity);
         }
 
@@ -226,7 +227,7 @@ namespace Emergence.Gameplay.Physics
             return target;
         }
 
-        private Vector2 ResolveOverlap(Body body, Vector2 position, float height)
+        private Vector2 ResolveOverlap(Body body, Vector2 position, float height, ref Vector2 displacement, ref Vector2 velocity)
         {
             // Cast 与 Distance 的接触边距不同，移动后也须用 Unity 距离查询确认无穿透。
             for (int iteration = 0; iteration < MaxIterations; iteration++)
@@ -238,6 +239,14 @@ namespace Emergence.Gameplay.Physics
                     if (other.attachedRigidbody == body.Rigidbody) continue;
                     if (!BlocksAtHeight(other, height)) continue;
                     var distance = body.ActiveShape.Distance(other);
+                    // 复用距离查询，在 Unity 接触边距内约束朝向表面的位移与速度。
+                    if (distance.distance <= ContactTolerance)
+                    {
+                        // Distance 法线从 pointB 指向 pointA；穿透时最近点的顺序反转。
+                        Vector2 contactNormal = distance.distance > 0 ? distance.normal : -distance.normal;
+                        displacement -= contactNormal * Mathf.Min(0, Vector2.Dot(displacement, contactNormal));
+                        velocity -= contactNormal * Mathf.Min(0, Vector2.Dot(velocity, contactNormal));
+                    }
                     if (!distance.isOverlapped) continue;
                     position += distance.normal * (distance.distance - ContactDistance);
                     body.Rigidbody.position = position;
@@ -282,7 +291,7 @@ namespace Emergence.Gameplay.Physics
                     if (other.attachedRigidbody == body.Rigidbody) continue;
                     if (!BlocksAtHeight(other, height)) continue;
                     var distance = body.ActiveShape.Distance(other);
-                    if (distance.distance > ContactDistance * 2) continue;
+                    if (distance.distance > ContactTolerance) continue;
                     contacts.Add(new PhysicsContactComponent { Entity = entities[other], Normal = distance.normal });
                 }
             }

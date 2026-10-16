@@ -89,7 +89,7 @@ namespace Emergence.Gameplay.Obstacle.Editor
                 !scene.Solid.Distance(collider).isOverlapped,
                 "Unity cast blocks movement and clears velocity into obstacle");
             movement = scene.Physics.Move(player, stopped, new float2(-1, 0), new float2(-1, 0), 0);
-            Check(math.abs(movement.Displacement.x + 1) < 0.001f,
+            Check(math.abs(movement.Displacement.x + 1) < 0.001f && math.abs(movement.Velocity.x + 1) < 0.001f,
                 "Player can move away from obstacle; displacement=" + movement.Displacement +
                 "; body=" + scene.Solid.attachedRigidbody.position + "; transform=" + scene.Solid.transform.position);
             movement = scene.Physics.Move(player, stopped, new float2(1, 1), new float2(1, 1), 0);
