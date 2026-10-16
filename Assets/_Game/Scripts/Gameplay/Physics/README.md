@@ -35,9 +35,9 @@ Actor 和 Obstacle Layer 已配置；参与查询的 Collider 必须由所属门
 
 ## PipeMap 管壁（第二阶段）
 
-`PipeCollision` 独立于显示用 Tilemap，共 18 段 BoxCollider2D：直管两侧、横管上下、两端弯头；上方两个入口开放。
+`PipeCollision` 独立于显示用 Tilemap，共 6 段 BoxCollider2D：四条竖墙、横管上下两条墙；上方两个入口开放。
 尺寸、位置、旋转直接在对应 Collider 的 Inspector 中调整，内部通道不铺设整块碰撞。
-弯头用短碰撞箱逐段贴合，端点略有重叠以覆盖接缝。装饰性的管接头不封堵内部通道。
+转角采用直角，两条主墙的端点略有重叠以覆盖接缝，不额外配置弯头碰撞。装饰性的管接头不封堵内部通道。
 
 每段墙复用 ObstacleBootstrap，绑定 Collider2D、ObstacleController 和 ObstacleView，并加入 GameBootstrap 的 obstacleBootstraps。
 管壁使用 Obstacle Layer，isDestructible 不勾选，ObstacleView 不配置 SpriteRenderer；显示继续由 Tilemap 负责。
