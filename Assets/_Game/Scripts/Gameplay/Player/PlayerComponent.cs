@@ -11,7 +11,6 @@ namespace Emergence.Gameplay.Player
     {
         public PlayerFormKind Value;
     }
-
     public struct PlayerSolidComponent : IComponentData
     {
         public float MoveVelocityMagnitude;
@@ -39,6 +38,12 @@ namespace Emergence.Gameplay.Player
     {
         // XY 为地图运动，Z 为独立高度的运动。
         public float3 Velocity;
+    }
+
+    public struct DamageFieldComponent : IComponentData
+    {
+        public float Radius;
+        public float Strength;
     }
 
     public struct PlayerInputComponent : IComponentData

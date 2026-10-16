@@ -1,5 +1,6 @@
 using System;
 using Emergence.Gameplay.Environment;
+using Emergence.Gameplay.NPC;
 using Emergence.Gameplay.Physics;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -19,8 +20,12 @@ namespace Emergence.Gameplay.Player
 
         protected override void OnStartRunning()
         {
-            physics = World.GetExistingSystemManaged<PhysicsSystem>();
-            if (physics == null) throw new InvalidOperationException("PhysicsSystem must be initialized before player movement.");
+            // 校验
+            var resolvedPhysics = World.GetExistingSystemManaged<PhysicsSystem>();
+            if (resolvedPhysics == null) throw new InvalidOperationException("PhysicsSystem must be initialized before player movement.");
+
+            // 初始化
+            physics = resolvedPhysics;
         }
 
         public static void Die(EntityManager manager, Entity player) =>
@@ -84,6 +89,25 @@ namespace Emergence.Gameplay.Player
                 position.ValueRW.XY += movement.Displacement;
                 position.ValueRW.Height = movement.Height;
                 motion.ValueRW.Velocity = new float3(movement.Velocity, movement.VerticalVelocity);
+            }
+            ApplyDamageFields(dt);
+        }
+
+        public void ApplyDamageFields(float deltaTime)
+        {
+            foreach (var (resistance, position) in
+                     SystemAPI.Query<RefRW<NPCResistanceComponent>, RefRO<NPCPositionComponent>>().WithAll<NPCTagComponent>())
+            {
+                float reduction = 0;
+                foreach (var (field, center) in
+                         SystemAPI.Query<RefRO<DamageFieldComponent>, RefRO<PlayerPositionComponent>>()
+                             .WithAll<PlayerTagComponent>().WithDisabled<DeadTagComponent>())
+                {
+                    // 伤害场属于玩家，按地面位置衰减；显示按键和表现高度不参与玩法判断。
+                    float distance = math.distance(position.ValueRO.XY, center.ValueRO.XY);
+                    reduction += field.ValueRO.Strength * math.saturate(1 - distance / field.ValueRO.Radius) * deltaTime;
+                }
+                resistance.ValueRW.Value = math.max(0, resistance.ValueRO.Value - reduction);
             }
         }
 

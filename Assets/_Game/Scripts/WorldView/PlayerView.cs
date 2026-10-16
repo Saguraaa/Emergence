@@ -12,6 +12,9 @@ namespace Emergence.WorldView
         [SerializeField] private ParticleSystem gasParticles;
         [SerializeField] private TrailRenderer gasTrail;
         [SerializeField] private SpriteRenderer shadow;
+        [SerializeField] private Transform damageFieldRoot;
+        [SerializeField] private MeshRenderer damageFieldOutline;
+        [SerializeField] private ParticleSystem damageFieldParticles;
         private Vector3 solidScale;
         private Vector3 liquidScale;
         private Vector3 shadowScale;
@@ -44,17 +47,31 @@ namespace Emergence.WorldView
             if (liquidBody.sprite == null) throw new MissingReferenceException(name + ": liquidBody.sprite is required.");
             if (shadow.transform.parent != transform)
                 throw new System.InvalidOperationException(name + ": shadow must be a direct child of the player ground root.");
-            // 缓存表现参数
+            if (damageFieldRoot == null) throw new MissingReferenceException(name + ": damageFieldRoot is required.");
+            if (damageFieldOutline == null) throw new MissingReferenceException(name + ": damageFieldOutline is required.");
+            if (damageFieldParticles == null) throw new MissingReferenceException(name + ": damageFieldParticles is required.");
+            if (damageFieldRoot.parent != transform || damageFieldRoot.localPosition != Vector3.zero ||
+                damageFieldRoot.localRotation != Quaternion.identity || !damageFieldOutline.transform.IsChildOf(damageFieldRoot) ||
+                !damageFieldParticles.transform.IsChildOf(damageFieldRoot))
+                throw new System.InvalidOperationException(name + ": damage field visuals must belong to a centered child of the player ground root.");
+            var outlineMesh = damageFieldOutline.GetComponent<MeshFilter>();
+            if (outlineMesh == null || outlineMesh.sharedMesh == null || damageFieldOutline.sharedMaterial == null)
+                throw new MissingReferenceException(name + ": damageFieldOutline requires a saved mesh and material.");
+            var fieldRenderer = damageFieldParticles.GetComponent<ParticleSystemRenderer>();
+            if (fieldRenderer == null || fieldRenderer.sharedMaterial == null)
+                throw new MissingReferenceException(name + ": damageFieldParticles requires a renderer and material.");
+            float resolvedShadowWidth = shadow.bounds.size.x;
+            if (!math.isfinite(resolvedShadowWidth) || resolvedShadowWidth <= 0)
+                throw new System.InvalidOperationException(name + ": shadow width must be finite and positive.");
+
+            // 初始化
             solidScale = solidBody.transform.localScale;
             bodyScale = bodyRoot.localScale;
             respawnStarted = float.NegativeInfinity;
             liquidScale = liquidBody.transform.localScale;
             shadowScale = shadow.transform.localScale;
-            shadowWidth = shadow.bounds.size.x;
-            // 校验阴影尺寸
-            if (!math.isfinite(shadowWidth) || shadowWidth <= 0)
-                throw new System.InvalidOperationException(name + ": shadow width must be finite and positive.");
-            // 初始化
+            shadowWidth = resolvedShadowWidth;
+            HideDamageField();
             ResizeShadow(solidBody.bounds.size.x);
             // 初始化显式应用出生形态，替代 hasForm 首帧标志。
             ShowForm(form);
@@ -80,7 +97,8 @@ namespace Emergence.WorldView
             shownForm = form;
         }
 
-        public void Refresh(PlayerPositionComponent position, PlayerFormKind form, PlayerMotionComponent motion)
+        public void Refresh(PlayerPositionComponent position, PlayerFormKind form, PlayerMotionComponent motion,
+            DamageFieldComponent damageField, bool showDamageField)
         {
             transform.position = new(position.XY.x, position.XY.y, transform.position.z);
             bodyRoot.localPosition = new(0, position.Height, 0);
@@ -98,7 +116,11 @@ namespace Emergence.WorldView
                 liquidBody.transform.localRotation = Quaternion.Euler(0, 0,
                     Mathf.Atan2(motion.Velocity.y, motion.Velocity.x) * Mathf.Rad2Deg);
             RefreshShadow(position, form);
+            damageFieldRoot.localScale = new Vector3(damageField.Radius, damageField.Radius, 1);
+            damageFieldRoot.gameObject.SetActive(showDamageField);
         }
+
+        public void HideDamageField() => damageFieldRoot.gameObject.SetActive(false);
 
         private void ResizeShadow(float width)
         {

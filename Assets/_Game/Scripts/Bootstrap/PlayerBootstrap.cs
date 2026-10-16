@@ -25,6 +25,8 @@ namespace Emergence.Bootstrap
         [SerializeField] private CircleCollider2D liquidCollider;
         [SerializeField] private CircleCollider2D gasCollider;
         [SerializeField] private LayerMask collisionLayers;
+        [SerializeField, Min(0.01f)] private float damageFieldRadius = 3;
+        [SerializeField, Min(0)] private float damageFieldStrength = 25;
         private PhysicsSystem physics;
         private World world;
         private Entity player;
@@ -51,15 +53,23 @@ namespace Emergence.Bootstrap
                 throw new InvalidOperationException(name + ": initialHeight must be finite and nonnegative.");
             if (!Enum.IsDefined(typeof(PlayerFormKind), initialForm))
                 throw new InvalidOperationException(name + ": initialForm is invalid.");
-            world = World.DefaultGameObjectInjectionWorld;
-            if (world == null || !world.IsCreated) throw new InvalidOperationException("Default ECS World is unavailable.");
-            var manager = world.EntityManager;
-            physics = world.GetExistingSystemManaged<PhysicsSystem>();
-            if (physics == null) throw new InvalidOperationException("Default ECS World requires PhysicsSystem.");
+            if (!math.isfinite(damageFieldRadius) || damageFieldRadius <= 0 ||
+                !math.isfinite(damageFieldStrength) || damageFieldStrength < 0)
+                throw new InvalidOperationException(name + ": damage field radius must be positive and strength nonnegative; both must be finite.");
+            var resolvedWorld = World.DefaultGameObjectInjectionWorld;
+            if (resolvedWorld == null || !resolvedWorld.IsCreated) throw new InvalidOperationException("Default ECS World is unavailable.");
+            var manager = resolvedWorld.EntityManager;
+            var resolvedPhysics = resolvedWorld.GetExistingSystemManaged<PhysicsSystem>();
+            if (resolvedPhysics == null) throw new InvalidOperationException("Default ECS World requires PhysicsSystem.");
             using var environmentQuery = manager.CreateEntityQuery(typeof(EnvironmentComponent));
             if (environmentQuery.CalculateEntityCount() != 1)
                 throw new InvalidOperationException("Initialize exactly one environment before the player.");
+            Vector3 spawn = playerView.transform.position;
+            if (!math.all(math.isfinite((float3)spawn))) throw new InvalidOperationException(name + ": player spawn must be finite.");
+
             // 初始化
+            world = resolvedWorld;
+            physics = resolvedPhysics;
             player = manager.CreateEntity(typeof(PlayerTagComponent), typeof(PlayerInputComponent),
                 typeof(PlayerPositionComponent), typeof(PlayerMotionComponent), typeof(PlayerFormComponent),
                 typeof(PlayerSolidComponent), typeof(PlayerLiquidComponent), typeof(PlayerGasComponent));
@@ -67,7 +77,7 @@ namespace Emergence.Bootstrap
             manager.AddComponent<DeadTagComponent>(player);
             manager.SetComponentEnabled<DeadTagComponent>(player, false);
             manager.AddBuffer<PhysicsContactComponent>(player);
-            Vector3 spawn = playerView.transform.position;
+            manager.AddComponentData(player, new DamageFieldComponent { Radius = damageFieldRadius, Strength = damageFieldStrength });
             manager.SetComponentData(player, new PlayerPositionComponent
             {
                 XY = new float2(spawn.x, spawn.y), Height = initialHeight
