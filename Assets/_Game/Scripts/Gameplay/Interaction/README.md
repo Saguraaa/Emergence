@@ -27,15 +27,25 @@ ObstacleSystem 在两个玩法读取者执行后清除共享 InteractPressed。
 场景：`Assets/_Game/Scenes/Test/ActivativeTest.unity`。玩家附近的交互点采用按键模式，onActivated 绑定 InteractionTextOutput.Output，输出 `ActivativeTest: interaction activated.`。
 场景运行验收由用户完成。
 
-## 地漏传送（第一阶段）
+## 场景传送与独立落点
 
 Tutorial01 的 `InteractionPoint_FloorDrain` 使用 `EnterRange`，`allowedForms` 仅允许 Liquid。
 `onActivated` 绑定同物体上的 `SceneTransferAction.Transfer`；目标场景通过 Inspector 拖入，编辑器自动保存运行时加载路径。
-`gameBootstrap` 绑定当前场景总开关，切换前停用总开关，通过 OnDisable 按顺序清理 Controller、物理注册和 ECS 实体。
+`destinationPointId` 指定目标场景内的落点 ID；`gameBootstrap` 绑定当前场景总开关。
+SceneTransferPoint 配置 `pointId` 和任意本场景 GameObject 的 `anchor` Transform，同场景 ID 不得重复。
+落点不属于 PlayerBootstrap，不依赖 Player 的摆放位置；缺失或重复落点直接报告配置错误。
 Tutorial01 与 PipeMap 均须启用在构建场景列表中。
 
-PipeMap 使用本场景的玩家、输入、环境和摄像机；玩家初始形态为 Liquid，固定出生位置为 `(-5.5, 16)`，Height 为 0。
-本阶段重新创建玩家，不迁移旧场景的运行时参数。后续阶段再配置管壁碰撞与侧视下落。
+SceneTransferSystem 只在 ECS 请求中保存目标场景和落点，不保存形态或玩家状态副本。
+默认 World 及同一个 Player 实体跨场景保留；门控在有传送请求时只关闭 Controller、解除物理注册，不销毁玩家。
+目标门控绑定该实体，初始配置只在首次创建玩家时应用；传送只更新 XY，保留 Height、Velocity、形态、运行参数及额外组件。
+输入解绑保留已有请求；物理接触缓冲属于旧场景查询结果，解绑时清空。
+固定步规则在卸载前暂停，目标玩家、输入、物理和摄像机全部装配后恢复。
+视角和运动模式由目标场景环境提供，恢复后的正常玩法仍会按该地图规则更新状态。
+每张地图使用同一个 Player Prefab 的场景实例作表现和物理绑定，增加传送点不需要增加 Player。
 
-验收：固态、气态进入第一个地漏均不切换；液态在范围外不切换，进入后无需按 E 即进入 PipeMap。
-到达后玩家应位于固定位置，旧场景已卸载，且只存在一个玩家和一个环境实体。停止后再次运行也应正常。
+Tutorial01 左侧地漏（Liquid / EnterRange）→ PipeMap 的 PipeLeft 锚点 `(-5.5, 16)`。
+PipeMap 保留现有右侧 Liquid2Gas 转换点；气态升至右管道的 Interactive_ChangeSccene 后自动返回 TutorialRight。
+TutorialRight 的 SceneTransferPoint 直接挂在 Tutorial01 右侧地漏上，Anchor 指向自身 Transform，返回形态自然保持 Gas。
+直接启动地图仍使用该场景玩家的默认出生位置与初始配置。
+检查入口：`Emergence/Checks/Scene Transfer`，覆盖实体存续、任意组件、速度、输入、启用状态、落点解析及绑定顺序。

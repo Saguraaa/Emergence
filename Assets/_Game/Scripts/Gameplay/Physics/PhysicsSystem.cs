@@ -37,7 +37,7 @@ namespace Emergence.Gameplay.Physics
             public bool IsPlayer;
         }
 
-        public void RegisterBody(Entity entity, Rigidbody2D rigidbody, Collider2D[] shapes, LayerMask collisionLayers)
+        public void RegisterBody(Entity entity, Rigidbody2D rigidbody, Collider2D[] shapes, LayerMask collisionLayers, int shapeIndex = 0)
         {
             if (!EntityManager.Exists(entity) || !EntityManager.HasBuffer<PhysicsContactComponent>(entity) ||
                 !(EntityManager.HasComponent<PlayerPositionComponent>(entity) ^ EntityManager.HasComponent<NPCPositionComponent>(entity)))
@@ -46,6 +46,7 @@ namespace Emergence.Gameplay.Physics
             if (rigidbody.bodyType != RigidbodyType2D.Kinematic || !rigidbody.simulated)
                 throw new InvalidOperationException(rigidbody.name + ": Rigidbody2D must be simulated and Kinematic.");
             if (shapes == null || shapes.Length == 0) throw new ArgumentException(rigidbody.name + ": shapes are required.");
+            if (shapeIndex < 0 || shapeIndex >= shapes.Length) throw new ArgumentOutOfRangeException(nameof(shapeIndex));
             if (collisionLayers.value == 0) throw new ArgumentException(rigidbody.name + ": collisionLayers must not be empty.");
             foreach (var shape in shapes)
             {
@@ -57,7 +58,7 @@ namespace Emergence.Gameplay.Physics
             filter.SetLayerMask(collisionLayers);
             bodies.Add(entity, new Body
             {
-                Rigidbody = rigidbody, Shapes = shapes, ActiveShape = shapes[0],
+                Rigidbody = rigidbody, Shapes = shapes, ActiveShape = shapes[shapeIndex],
                 Filter = filter, Scene = rigidbody.gameObject.scene.GetPhysicsScene2D(),
                 IsPlayer = EntityManager.HasComponent<PlayerPositionComponent>(entity)
             });
@@ -68,8 +69,7 @@ namespace Emergence.Gameplay.Physics
             rigidbody.position = bodies[entity].IsPlayer
                 ? (Vector2)EntityManager.GetComponentData<PlayerPositionComponent>(entity).XY
                 : (Vector2)EntityManager.GetComponentData<NPCPositionComponent>(entity).XY;
-            // 注册后即可参与其他对象的查询；当前形状在首次移动时按实际形态切换。
-            for (int i = 0; i < shapes.Length; i++) shapes[i].enabled = i == 0;
+            for (int i = 0; i < shapes.Length; i++) shapes[i].enabled = i == shapeIndex;
         }
 
         public void RegisterObstacle(Entity entity, Collider2D collider)
@@ -135,6 +135,7 @@ namespace Emergence.Gameplay.Physics
                 if (shape != null) shape.enabled = false;
             }
             bodies.Remove(entity);
+            EntityManager.GetBuffer<PhysicsContactComponent>(entity).Clear();
         }
 
         public void UnregisterObstacle(Entity entity)

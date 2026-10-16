@@ -116,8 +116,10 @@ namespace Emergence.Gameplay.Player
         }
 
 
-        public void Shutdown()
+        public void Shutdown(bool preserveInput = false)
         {
+            // 传送只解绑场景输入，不让 OnDisable 向保留的玩家实体写入空请求。
+            if (preserveInput) world = null;
             enabled = false;
             if (view != null)
             {

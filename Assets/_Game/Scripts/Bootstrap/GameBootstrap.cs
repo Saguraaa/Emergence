@@ -1,4 +1,6 @@
 using UnityEngine;
+using Unity.Entities;
+using Emergence.Gameplay.InteractCallback;
 
 namespace Emergence.Bootstrap
 {
@@ -12,6 +14,7 @@ namespace Emergence.Bootstrap
         [SerializeField] private InteractionBootstrap[] interactionBootstraps = new InteractionBootstrap[0];
         [SerializeField] private RespawnBootstrap[] respawnBootstraps = new RespawnBootstrap[0];
         [SerializeField] private NPCBootstrap[] npcBootstraps = new NPCBootstrap[0];
+        private World world;
 
         // 总入口仅启动一次，各门控不再维护防重复初始化状态。
         private void Start() => Initialize();
@@ -44,6 +47,8 @@ namespace Emergence.Bootstrap
                     throw new MissingReferenceException($"{name}: npcBootstraps[{i}] is required.");
 
             // 初始化
+            world = World.DefaultGameObjectInjectionWorld;
+            if (world == null || !world.IsCreated) throw new MissingReferenceException(name + ": default World is required.");
             var inputSettings = inputBootstrap.Initialize();
             environmentBootstrap.Initialize();
             foreach (var obstacleBootstrap in obstacleBootstraps) obstacleBootstrap.Initialize();
@@ -52,6 +57,7 @@ namespace Emergence.Bootstrap
             playerBootstrap.Initialize(inputSettings);
             foreach (var npcBootstrap in npcBootstraps) npcBootstrap.Initialize();
             foreach (var cameraBootstrap in cameraBootstraps) cameraBootstrap.Initialize();
+            SceneTransferSystem.Complete(world, gameObject.scene.path);
         }
 
         private void Shutdown()
@@ -65,8 +71,15 @@ namespace Emergence.Bootstrap
             for (int i = obstacleBootstraps.Length - 1; i >= 0; i--) obstacleBootstraps[i].Shutdown();
             environmentBootstrap.Shutdown();
             inputBootstrap.Shutdown();
+            world = null;
         }
 
-        private void OnDisable() => Shutdown();
+        private void OnDisable()
+        {
+            if (world != null && world.IsCreated) Shutdown();
+        }
+
+        // 在 Unity 开始销毁场景对象前，先按装配顺序关闭各门控。
+        private void OnApplicationQuit() => enabled = false;
     }
 }
