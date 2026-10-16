@@ -119,6 +119,155 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &370110801
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: interactionMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 33.97
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.62
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2290965510702084242, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2386101310824653676, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1710981365271166214, guid: cb3612c7323603446a74ceed6c1e4439, type: 3}
+    - target: {fileID: 2386101310824653676, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2386101310824653676, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3464261649789625551, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Radius
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3464261649789625551, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Name
+      value: Converter_Liquid2Gas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 370110803}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Convert
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Emergence.Gameplay.InteractCallback.Converter.ConverterAction, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438104207062981899, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: onActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 370110803}
+  m_SourcePrefab: {fileID: 100100000, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+--- !u!1 &370110802 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+  m_PrefabInstance: {fileID: 370110801}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &370110803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 370110802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56c8a2ebc27d40bfb53f8025fccf11fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.InteractCallback.Converter.ConverterAction
+  conversion: 1
+--- !u!114 &370110804 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1573049197618146557, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+  m_PrefabInstance: {fileID: 370110801}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 370110802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd055c43a46c91f4cb897600ce86456c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.InteractionBootstrap
 --- !u!1 &373064932
 GameObject:
   m_ObjectHideFlags: 0
@@ -989,7 +1138,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1623572826}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -1347,7 +1496,8 @@ MonoBehaviour:
   - {fileID: 10119194799}
   - {fileID: 13780859850}
   - {fileID: 12249264417}
-  interactionBootstraps: []
+  interactionBootstraps:
+  - {fileID: 370110804}
   respawnBootstraps: []
   npcBootstraps: []
 --- !u!4 &2142241684
@@ -1365,132 +1515,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &13870718481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1623572826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
-  colliderBounds: {fileID: 1623572827}
-  isDestructible: 0
-  obstacleHeight: 1
-  controller: {fileID: 13870718482}
-  obstacleView: {fileID: 13870718483}
---- !u!114 &13870718482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1623572826}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
---- !u!114 &13870718483
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1623572826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
-  spriteRenderer: {fileID: 0}
---- !u!114 &13614257760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1538085919}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
-  colliderBounds: {fileID: 1538085920}
-  isDestructible: 0
-  obstacleHeight: 1
-  controller: {fileID: 13614257761}
-  obstacleView: {fileID: 13614257762}
---- !u!114 &13614257761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1538085919}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
---- !u!114 &13614257762
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1538085919}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
-  spriteRenderer: {fileID: 0}
---- !u!114 &14611968168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1870656055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
-  colliderBounds: {fileID: 1870656056}
-  isDestructible: 0
-  obstacleHeight: 1
-  controller: {fileID: 14611968169}
-  obstacleView: {fileID: 14611968170}
---- !u!114 &14611968169
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1870656055}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
---- !u!114 &14611968170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1870656055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
-  spriteRenderer: {fileID: 0}
 --- !u!114 &10119194799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1527,48 +1551,6 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 373064932}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
-  spriteRenderer: {fileID: 0}
---- !u!114 &13780859850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1593619949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
-  colliderBounds: {fileID: 1593619950}
-  isDestructible: 0
-  obstacleHeight: 1
-  controller: {fileID: 13780859851}
-  obstacleView: {fileID: 13780859852}
---- !u!114 &13780859851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1593619949}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
---- !u!114 &13780859852
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1593619949}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
@@ -1617,6 +1599,174 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
   spriteRenderer: {fileID: 0}
+--- !u!114 &13614257760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538085919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
+  colliderBounds: {fileID: 1538085920}
+  isDestructible: 0
+  obstacleHeight: 1
+  controller: {fileID: 13614257761}
+  obstacleView: {fileID: 13614257762}
+--- !u!114 &13614257761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538085919}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
+--- !u!114 &13614257762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538085919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
+  spriteRenderer: {fileID: 0}
+--- !u!114 &13780859850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1593619949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
+  colliderBounds: {fileID: 1593619950}
+  isDestructible: 0
+  obstacleHeight: 1
+  controller: {fileID: 13780859851}
+  obstacleView: {fileID: 13780859852}
+--- !u!114 &13780859851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1593619949}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
+--- !u!114 &13780859852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1593619949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
+  spriteRenderer: {fileID: 0}
+--- !u!114 &13870718481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1623572826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
+  colliderBounds: {fileID: 1623572827}
+  isDestructible: 0
+  obstacleHeight: 1
+  controller: {fileID: 13870718482}
+  obstacleView: {fileID: 13870718483}
+--- !u!114 &13870718482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1623572826}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
+--- !u!114 &13870718483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1623572826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
+  spriteRenderer: {fileID: 0}
+--- !u!114 &14611968168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870656055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 791b26fafde556e438e3cd406c668d96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.ObstacleBootstrap
+  colliderBounds: {fileID: 1870656056}
+  isDestructible: 0
+  obstacleHeight: 1
+  controller: {fileID: 14611968169}
+  obstacleView: {fileID: 14611968170}
+--- !u!114 &14611968169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870656055}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 361e27d3eab91ad49928a5e119ecac3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Obstacle.ObstacleController
+--- !u!114 &14611968170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870656055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8e787eb205c8d4b93dbe1d39240a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.ObstacleView
+  spriteRenderer: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1628,3 +1778,4 @@ SceneRoots:
   - {fileID: 1288798100}
   - {fileID: 2142241684}
   - {fileID: 614286723}
+  - {fileID: 370110801}

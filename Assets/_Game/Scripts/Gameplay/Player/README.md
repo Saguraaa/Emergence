@@ -25,13 +25,13 @@ PlayerSolidConfig.asset、PlayerLiquidConfig.asset、PlayerGasConfig.asset。
 ## 门控调用
 
 GameBootstrap 是总入口，在 Start 中统一初始化输入、环境、障碍物和玩家，关闭时逆序回收。
-各门控只提供显式 Initialize()/Shutdown()，不自行启动。
+各门控通过显式 Initialize(...)/Shutdown() 开启和关闭，不自行启动。
 
 ```csharp
-inputBootstrap.Initialize();
+var inputSettings = inputBootstrap.Initialize();
 environmentBootstrap.Initialize();
 foreach (var obstacle in obstacleBootstraps) obstacle.Initialize();
-playerBootstrap.Initialize();
+playerBootstrap.Initialize(inputSettings);
 
 // 关闭时逆序，错误由 Unity 直接报告。
 playerBootstrap.Shutdown();
@@ -48,6 +48,18 @@ inputBootstrap.Shutdown();
 环境门控单独配置 WindVelocity 和 Gravity，使用框架创建的默认 ECS World。
 PlayerBootstrap 在 Controller 关闭、物理注册解除后才销毁玩家实体。
 
+## 统一 Player Prefab
+
+所有含 Player 的项目场景均使用 `Assets/_Game/Prefabs/Gameplay/Player.prefab` 的实例。
+模板以 Tutorial01 的 Player 为准，包含三态表现、阴影、伤害场、Rigidbody2D、碰撞节点和玩家脚本。
+共享外观、组件引用、输入 Action 和默认参数在 Prefab Mode 中修改；各场景保留自己的出生位置。
+需要场景差异时，可覆盖初始形态、出生高度或伤害场数值，避免覆盖共用表现节点。
+
+Prefab 不引用场景输入对象。InputBootstrap.Initialize 返回本场景已初始化的 InputSettingsController，
+GameBootstrap 将它传给 PlayerBootstrap.Initialize；输入副本仍由原输入管理器统一持有和释放。
+GameBootstrap.playerBootstrap 引用场景中的 Prefab 实例。新场景拖入同一个 Prefab 后配置该引用即可。
+这是各场景共用模板，Player 仍由各场景的门控创建和销毁，不引入跨场景常驻对象。
+
 Tutorial01、PlayerMovementTest 和 ObstacleTest 均已接入总入口，并按对象归属挂载：
 
 ```text
@@ -61,13 +73,23 @@ PlayerController 与 PlayerView 跟随 Player 对象启停，不挂在总入口�
 
 ## View 与输入
 
-PlayerView 初始化时校验 bodyRoot、固液 SpriteRenderer、气态 ParticleSystem 及其 Renderer、
-TrailRenderer，缺失立即报错。初始化直接应用出生形态；shownForm 只缓存上次显示结果，
+PlayerView 初始化时校验 bodyRoot、三态 SpriteRenderer、LiquidView、气态 ParticleSystem 及其 Renderer，
+缺失立即报错。初始化直接应用出生形态；shownForm 只缓存上次显示结果，
 避免反复重启粒子。Refresh 不判空，不包含玩法规则。
 
 PlayerController 在场景中默认禁用，由 Initialize() 开启，Shutdown() 关闭并解除事件订阅。
 不维护 initialized 标志，不通过 Awake()/OnEnable() 自动装配。
-View 的表现对象随 GameObject 销毁，不额外实现重复关闭或缩放恢复。
+Controller 关闭时调用 PlayerView.Shutdown，停止粒子并释放 LiquidView 持有的运行时网格。
+
+液态以原 SpriteRenderer 的图片、颜色和材质为来源，在 Liquid/Surface 生成 24×10 格网格。
+脸部区域保持稳定，外围根据 ECS 实际 Velocity 拉伸、延迟跟随并在启停和转向时短暂回弹，静止时轻微起伏。
+不再将液态图片旋转到移动方向；网格和顶点数组复用，不修改原始 Sprite、Collider 或 ECS 状态。
+LiquidView 的 flowStretch、edgeRipple、responseTime 分别调整拉伸、边缘波动和跟随时间。
+
+气态使用 Gas.png 的 Sprite 主体，附带轻微呼吸和浮动。Gas Particles 在世界空间按路程发射，
+停下后保留少量逸散；烟雾使用 GasSmoke 材质，逐渐扩散、上浮和淡出。原 Gas Trail 已移除。
+形态切换和重生清理表现缓存；阴影跟随各形态实际显示范围。
+ConverterTest 直接继承共享 Player Prefab，可在四个转换点按 E 切换后观察静止、启停和转向。
 Inspector 中的 moveAction、interactAction 和 showDamageFieldAction 使用 InputActionReference，
 分别选择 Player/Move、Player/Interact 和 Player/ShowDamageField；要求 Move 提供 Vector2，其他两个为 Button。
 
@@ -90,3 +112,4 @@ GetBindingCount、GetBinding、GetBindingDisplayString、BeginRebind 均接收 I
 测试结束关闭临时场景，不修改已有场景；需在非 Play 模式运行。RunBatch 提供批处理入口。
 测试覆盖原有运动行为，并检查每步只执行当前形态、三态参数隔离、非法形态及配置复制。
 Emergence > Checks > Obstacle Destruction 验证 Unity 碰撞阻挡、离开、滑动、形态切换、Inspector 尺寸及破坏条件。
+Emergence > Checks > Player Prefab 检查共享资源的引用归属、所有场景的 Prefab 连接、输入注入和初始化/关闭流程。

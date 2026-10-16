@@ -119,7 +119,11 @@ namespace Emergence.Gameplay.Player
         public void Shutdown()
         {
             enabled = false;
-            if (view != null) view.HideDamageField();
+            if (view != null)
+            {
+                view.HideDamageField();
+                view.Shutdown();
+            }
             if (respawn != null) respawn.Respawned -= OnRespawned;
             respawn = null;
             if (interact != null) interact.performed -= OnInteract;

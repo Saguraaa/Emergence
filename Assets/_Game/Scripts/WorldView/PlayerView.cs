@@ -9,14 +9,17 @@ namespace Emergence.WorldView
         [SerializeField] private Transform bodyRoot;
         [SerializeField] private SpriteRenderer solidBody;
         [SerializeField] private SpriteRenderer liquidBody;
+        [SerializeField] private LiquidView liquidView;
+        [SerializeField] private SpriteRenderer gasBody;
         [SerializeField] private ParticleSystem gasParticles;
-        [SerializeField] private TrailRenderer gasTrail;
         [SerializeField] private SpriteRenderer shadow;
         [SerializeField] private Transform damageFieldRoot;
         [SerializeField] private MeshRenderer damageFieldOutline;
         [SerializeField] private ParticleSystem damageFieldParticles;
         private Vector3 solidScale;
-        private Vector3 liquidScale;
+        private Vector3 gasScale;
+        private Vector3 gasPosition;
+        private Vector3 gasParticlesPosition;
         private Vector3 shadowScale;
         private float shadowWidth;
         // 仅缓存已显示形态，避免每帧重新播放粒子；权威形态仍在 ECS。
@@ -27,8 +30,8 @@ namespace Emergence.WorldView
         public void PlayRespawn()
         {
             respawnStarted = Time.time;
-            gasTrail.Clear();
             gasParticles.Clear(true);
+            liquidView.ResetMotion();
         }
 
         public void Initialize(PlayerFormKind form)
@@ -37,10 +40,13 @@ namespace Emergence.WorldView
             if (bodyRoot == null) throw new MissingReferenceException(name + ": PlayerView.bodyRoot is required.");
             if (solidBody == null) throw new MissingReferenceException(name + ": PlayerView.solidBody is required.");
             if (liquidBody == null) throw new MissingReferenceException(name + ": PlayerView.liquidBody is required.");
+            if (liquidView == null) throw new MissingReferenceException(name + ": PlayerView.liquidView is required.");
+            if (gasBody == null) throw new MissingReferenceException(name + ": PlayerView.gasBody is required.");
+            if (gasBody.sprite == null) throw new MissingReferenceException(name + ": gasBody.sprite is required.");
             if (gasParticles == null) throw new MissingReferenceException(name + ": PlayerView.gasParticles is required.");
-            if (gasParticles.GetComponent<ParticleSystemRenderer>() == null)
-                throw new MissingReferenceException(name + ": gasParticles requires ParticleSystemRenderer.");
-            if (gasTrail == null) throw new MissingReferenceException(name + ": PlayerView.gasTrail is required.");
+            var gasRenderer = gasParticles.GetComponent<ParticleSystemRenderer>();
+            if (gasRenderer == null || gasRenderer.sharedMaterial == null)
+                throw new MissingReferenceException(name + ": gasParticles requires ParticleSystemRenderer and material.");
             if (shadow == null) throw new MissingReferenceException(name + ": PlayerView.shadow is required.");
             if (shadow.sprite == null) throw new MissingReferenceException(name + ": shadow.sprite is required.");
             if (solidBody.sprite == null) throw new MissingReferenceException(name + ": solidBody.sprite is required.");
@@ -68,7 +74,10 @@ namespace Emergence.WorldView
             solidScale = solidBody.transform.localScale;
             bodyScale = bodyRoot.localScale;
             respawnStarted = float.NegativeInfinity;
-            liquidScale = liquidBody.transform.localScale;
+            gasScale = gasBody.transform.localScale;
+            gasPosition = gasBody.transform.localPosition;
+            gasParticlesPosition = gasParticles.transform.localPosition;
+            liquidView.Initialize(liquidBody);
             shadowScale = shadow.transform.localScale;
             shadowWidth = resolvedShadowWidth;
             HideDamageField();
@@ -88,12 +97,11 @@ namespace Emergence.WorldView
             };
             solidBody.gameObject.SetActive(solid);
             liquidBody.gameObject.SetActive(liquid);
+            liquidView.ResetMotion();
+            gasBody.gameObject.SetActive(gas);
             if (!gas) gasParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             gasParticles.gameObject.SetActive(gas);
             if (gas) gasParticles.Play();
-            gasTrail.Clear();
-            gasTrail.emitting = gas;
-            gasTrail.enabled = gas;
             shownForm = form;
         }
 
@@ -110,17 +118,27 @@ namespace Emergence.WorldView
             float amount = Mathf.Min(1, new Vector2(motion.Velocity.x, motion.Velocity.y).magnitude);
             float pulse = Mathf.Sin(Time.time * 10) * 0.08f * amount;
             solidBody.transform.localScale = Vector3.Scale(solidScale, new Vector3(1 + pulse, 1 - pulse, 1));
-            liquidBody.transform.localScale = Vector3.Scale(liquidScale,
-                new Vector3(1 + 0.15f * amount, 1 - 0.15f * amount, 1));
-            if (amount > 0)
-                liquidBody.transform.localRotation = Quaternion.Euler(0, 0,
-                    Mathf.Atan2(motion.Velocity.y, motion.Velocity.x) * Mathf.Rad2Deg);
+            Vector2 velocity = new(motion.Velocity.x, motion.Velocity.y);
+            if (form == PlayerFormKind.Liquid) liquidView.Refresh(velocity);
+            if (form == PlayerFormKind.Gas)
+            {
+                float breath = Mathf.Sin(Time.time * 2.2f) * 0.025f;
+                gasBody.transform.localScale = Vector3.Scale(gasScale, new Vector3(1 + breath, 1 - breath, 1));
+                gasBody.transform.localPosition = gasPosition + Vector3.up * (Mathf.Sin(Time.time * 1.8f) * 0.06f);
+                gasParticles.transform.localPosition = gasParticlesPosition - (Vector3)velocity.normalized * 0.25f;
+            }
             RefreshShadow(position, form);
             damageFieldRoot.localScale = new Vector3(damageField.Radius, damageField.Radius, 1);
             damageFieldRoot.gameObject.SetActive(showDamageField);
         }
 
         public void HideDamageField() => damageFieldRoot.gameObject.SetActive(false);
+
+        public void Shutdown()
+        {
+            gasParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            liquidView.Shutdown();
+        }
 
         private void ResizeShadow(float width)
         {
@@ -130,14 +148,10 @@ namespace Emergence.WorldView
 
         private void RefreshShadow(PlayerPositionComponent position, PlayerFormKind form)
         {
-            Vector2 groundCenter = new(position.XY.x, position.XY.y);
-            if (form != PlayerFormKind.Gas)
-            {
-                var body = form == PlayerFormKind.Solid ? solidBody : liquidBody;
-                Bounds bounds = body.bounds;
-                ResizeShadow(bounds.size.x);
-                groundCenter = new Vector2(bounds.center.x, bounds.min.y - (bodyRoot.position.y - transform.position.y));
-            }
+            Bounds bounds = form == PlayerFormKind.Liquid ? liquidView.Bounds :
+                form == PlayerFormKind.Gas ? gasBody.bounds : solidBody.bounds;
+            ResizeShadow(bounds.size.x);
+            Vector2 groundCenter = new(bounds.center.x, bounds.min.y - (bodyRoot.position.y - transform.position.y));
             Bounds shadowBounds = shadow.bounds;
             shadow.transform.position += new Vector3(groundCenter.x - shadowBounds.center.x, groundCenter.y - shadowBounds.center.y, 0);
         }
