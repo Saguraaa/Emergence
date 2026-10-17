@@ -12,6 +12,8 @@ PlayerSystem 在固定模拟步查询玩家共用状态，按枚举分支只读�
 固态具有加减速响应，液态直接响应输入，
 气态叠加环境风。地图 XY 与独立 Height 分开；固液形态受重力下落，落地高度归零。
 俯视模式的气态高度只随 WindVelocity.z 改变，W/S 只改变影子代表的地面 XY；PhysicsSystem 将高度限制在环境的 maximumHeight 内。
+PlayerView.heightDisplayScale 配置每米玩法高度对应的显示单位数，默认 1；Tutorial01 使用 2，使 2m 天花板对应 4 个显示单位。
+主体锚点显示 Y = min(XY.y + Height * heightDisplayScale, maximumDisplayY)，影子与碰撞仍留在地面 XY。
 PlayerView.maximumDisplayY 单独配置主体显示锚点的场景 Y 上限，默认 float.MaxValue。到顶后继续按 W，影子向上移动而主体锚点保持封顶。
 显示限制用于所有形态，转换为液态时保留高度并连续下落；显示位置不回写 ECS，也不用于交互和碰撞。
 PlayerSystem 将期望位移交给统一 PhysicsSystem，使用返回的允许位移和 Velocity 更新 ECS。

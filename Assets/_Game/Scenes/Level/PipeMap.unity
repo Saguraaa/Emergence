@@ -175,6 +175,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2386101310824653676, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2386101310824653676, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6441234196416337346, guid: 3614ae17ad34d5940b65e49bc71bd786, type: 3}
       propertyPath: m_Name
       value: Interactive_ChangeSccene
@@ -795,8 +803,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.Bootstrap.EnvironmentBootstrap
   movementMode: 1
-  windVelocity: {x: 0, y: 1, z: 0}
+  windVelocity: {x: 0, y: 2, z: 0}
   gravity: 9.81
+  maximumHeight: 3.4028235e+38
 --- !u!4 &664694699
 Transform:
   m_ObjectHideFlags: 0

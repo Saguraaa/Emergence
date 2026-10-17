@@ -16,6 +16,8 @@ namespace Emergence.WorldView
         [SerializeField] private Transform damageFieldRoot;
         [SerializeField] private MeshRenderer damageFieldOutline;
         [SerializeField] private ParticleSystem damageFieldParticles;
+        [Tooltip("每米玩法高度对应的显示单位数。")]
+        [SerializeField, Min(0.01f)] private float heightDisplayScale = 1;
         [Tooltip("主体显示锚点的场景 Y 上限；与 ECS 的实际高度独立。")]
         [SerializeField] private float maximumDisplayY = float.MaxValue;
         private Vector3 solidScale;
@@ -32,6 +34,7 @@ namespace Emergence.WorldView
         private float respawnStarted = float.NegativeInfinity;
 
         public float MaximumDisplayY => maximumDisplayY;
+        public float HeightDisplayScale => heightDisplayScale;
 
         public void PlayRespawn()
         {
@@ -43,6 +46,8 @@ namespace Emergence.WorldView
         public void Initialize(PlayerFormKind form)
         {
             // 校验
+            if (!math.isfinite(heightDisplayScale) || heightDisplayScale <= 0)
+                throw new System.InvalidOperationException(name + ": PlayerView.heightDisplayScale must be finite and positive.");
             if (!math.isfinite(maximumDisplayY))
                 throw new System.InvalidOperationException(name + ": PlayerView.maximumDisplayY must be finite.");
             if (bodyRoot == null) throw new MissingReferenceException(name + ": PlayerView.bodyRoot is required.");
@@ -149,7 +154,7 @@ namespace Emergence.WorldView
         public void HideDamageField() => damageFieldRoot.gameObject.SetActive(false);
 
         public Vector2 GetDisplayPosition(PlayerPositionComponent position) =>
-            new(position.XY.x, Mathf.Min(position.XY.y + position.Height, maximumDisplayY));
+            new(position.XY.x, Mathf.Min(position.XY.y + position.Height * heightDisplayScale, maximumDisplayY));
 
         public void Shutdown()
         {
