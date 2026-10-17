@@ -12,6 +12,7 @@ namespace Emergence.Bootstrap
     {
         [SerializeField] private InteractionMode interactionMode;
         [SerializeField, Min(0)] private float minimumHeight;
+        [SerializeField, Min(0)] private float maximumHeight = float.MaxValue;
         [SerializeField] private InteractionForms allowedForms = InteractionForms.All;
         [SerializeField] private Collider2D triggerRange;
         [SerializeField] private LayerMask interactionLayers;
@@ -26,6 +27,8 @@ namespace Emergence.Bootstrap
             // 校验
             if (!math.isfinite(minimumHeight) || minimumHeight < 0)
                 throw new InvalidOperationException(name + ": minimumHeight must be finite and nonnegative.");
+            if (!math.isfinite(maximumHeight) || maximumHeight < minimumHeight)
+                throw new InvalidOperationException(name + ": maximumHeight must be finite and at least minimumHeight.");
             // Unity 的 Flags Inspector 使用 -1 表示 Everything；ECS 只保存已定义的形态位。
             InteractionForms forms = (int)allowedForms == -1 ? InteractionForms.All : allowedForms;
             if (forms == 0 || (forms & ~InteractionForms.All) != 0)
@@ -47,7 +50,7 @@ namespace Emergence.Bootstrap
             interaction = manager.CreateEntity(typeof(InteractiveComponent), typeof(InteractionStateComponent), typeof(InteractionRequirementComponent));
             manager.SetComponentData(interaction, new InteractionRequirementComponent
             {
-                MinimumHeight = minimumHeight, AllowedForms = forms
+                MinimumHeight = minimumHeight, MaximumHeight = maximumHeight, AllowedForms = forms
             });
             manager.AddBuffer<InteractionOverlapComponent>(interaction);
             manager.SetName(interaction, name);

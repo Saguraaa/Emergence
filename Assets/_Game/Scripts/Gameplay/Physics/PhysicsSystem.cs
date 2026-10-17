@@ -158,7 +158,7 @@ namespace Emergence.Gameplay.Physics
 
         public (float2 Displacement, float2 Velocity, float Height, float VerticalVelocity) Move(
             Entity entity, float2 origin, float2 displacement, float2 velocity, int shapeIndex,
-            float height, float heightDisplacement, float verticalVelocity)
+            float height, float heightDisplacement, float verticalVelocity, float maximumHeight = float.MaxValue)
         {
             var body = bodies[entity];
             for (int i = 0; i < body.Shapes.Length; i++) body.Shapes[i].enabled = i == shapeIndex;
@@ -166,7 +166,7 @@ namespace Emergence.Gameplay.Physics
             body.Rigidbody.position = origin;
             Physics2D.SyncTransforms();
             // 每步先约束高度，再在允许高度上移动地图投影；Collider 始终留在地面节点。
-            float resolvedHeight = ResolveHeight(body, height, heightDisplacement);
+            float resolvedHeight = ResolveHeight(body, height, heightDisplacement, maximumHeight);
             if (math.abs(resolvedHeight - (height + heightDisplacement)) > 0.000001f) verticalVelocity = 0;
             Vector2 start = origin;
             Vector2 position = origin;
@@ -209,9 +209,9 @@ namespace Emergence.Gameplay.Physics
                    height <= EntityManager.GetComponentData<ObstacleHeightComponent>(entity).Height;
         }
 
-        private float ResolveHeight(Body body, float height, float displacement)
+        private float ResolveHeight(Body body, float height, float displacement, float maximumHeight)
         {
-            float target = math.max(0, height + displacement);
+            float target = math.clamp(height + displacement, 0, maximumHeight);
             if (displacement >= 0) return target;
             FindNearby(body);
             foreach (var other in overlaps)
@@ -223,7 +223,7 @@ namespace Emergence.Gameplay.Physics
                 if (height <= top || target > top + ContactDistance * 2) continue;
                 var distance = body.ActiveShape.Distance(other);
                 if (!distance.isOverlapped) continue;
-                target = math.max(target, math.min(height, top + ContactDistance * 2));
+                target = math.max(target, math.min(maximumHeight, math.min(height, top + ContactDistance * 2)));
             }
             return target;
         }

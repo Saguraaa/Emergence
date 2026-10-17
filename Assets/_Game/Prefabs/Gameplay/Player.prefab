@@ -10175,7 +10175,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8440571ea15e7ee45ad7334288eb52fe, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.WorldView.LiquidView
   flowStretch: 0.18
   edgeRipple: 0.035
@@ -10206,7 +10206,7 @@ Transform:
   m_GameObject: {fileID: 4728606758728946672}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -1.16, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10219,7 +10219,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4728606758728946672}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -10247,7 +10247,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.4
+  m_Radius: 1
 --- !u!1 &5033579678823974945
 GameObject:
   m_ObjectHideFlags: 0
@@ -10274,7 +10274,7 @@ Transform:
   m_GameObject: {fileID: 5033579678823974945}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -1.09, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10287,7 +10287,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5033579678823974945}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -10582,6 +10582,7 @@ MonoBehaviour:
   damageFieldRoot: {fileID: 1066034527238445412}
   damageFieldOutline: {fileID: 604939050712575530}
   damageFieldParticles: {fileID: 3295370588497356677}
+  maximumDisplayY: 3.4028235e+38
 --- !u!114 &4305724936547305165
 MonoBehaviour:
   m_ObjectHideFlags: 0

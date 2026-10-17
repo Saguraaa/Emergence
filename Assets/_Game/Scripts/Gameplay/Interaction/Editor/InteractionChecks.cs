@@ -22,7 +22,10 @@ namespace Emergence.Gameplay.Interaction.Editor
             var manager = world.EntityManager;
             var player = manager.CreateEntity(typeof(PlayerTagComponent), typeof(PlayerInputComponent), typeof(PlayerFormComponent));
             var point = manager.CreateEntity(typeof(InteractiveComponent), typeof(InteractionStateComponent));
-            manager.AddComponentData(point, new InteractionRequirementComponent { AllowedForms = InteractionForms.All });
+            manager.AddComponentData(point, new InteractionRequirementComponent
+            {
+                MaximumHeight = float.MaxValue, AllowedForms = InteractionForms.All
+            });
             manager.AddBuffer<InteractionOverlapComponent>(point);
             using var scene = new PhysicsChecksScene(world);
             scene.AddBody(manager, player);
@@ -86,7 +89,7 @@ namespace Emergence.Gameplay.Interaction.Editor
 
             manager.SetComponentData(point, new InteractionRequirementComponent
             {
-                MinimumHeight = 3, AllowedForms = InteractionForms.Gas
+                MinimumHeight = 3, MaximumHeight = float.MaxValue, AllowedForms = InteractionForms.Gas
             });
             Tick(0, true, PlayerFormKind.Gas, 2.99f);
             Check(Take() == 0 && !manager.GetComponentData<InteractionStateComponent>(point).IsOccupied,
@@ -112,7 +115,24 @@ namespace Emergence.Gameplay.Interaction.Editor
             Check(Take() == 0, "Manual interaction rejects disallowed form");
             Tick(0, true, PlayerFormKind.Gas, 3);
             Check(Take() == 1, "Manual interaction accepts gas at minimum height");
-            manager.SetComponentData(point, new InteractionRequirementComponent { AllowedForms = InteractionForms.All });
+            manager.SetComponentData(point, new InteractionRequirementComponent
+            {
+                MinimumHeight = 1.8f, MaximumHeight = 2, AllowedForms = InteractionForms.Gas
+            });
+            Tick(0, true, PlayerFormKind.Gas, 2.01f);
+            Check(Take() == 0, "Manual interaction rejects height above maximum");
+            Tick(0, true, PlayerFormKind.Gas, 2);
+            Check(Take() == 1, "Maximum height is inclusive");
+            manager.SetComponentData(point, new InteractionStateComponent { Mode = InteractionMode.EnterRange });
+            Tick(0, false, PlayerFormKind.Gas, 2.01f);
+            Check(Take() == 0 && !manager.GetComponentData<InteractionStateComponent>(point).IsOccupied,
+                "Automatic interaction rejects height above maximum");
+            Tick(0, false, PlayerFormKind.Gas, 2);
+            Check(Take() == 1, "Descending into height range activates without reentering XY");
+            manager.SetComponentData(point, new InteractionRequirementComponent
+            {
+                MaximumHeight = float.MaxValue, AllowedForms = InteractionForms.All
+            });
 
             var obstacle = manager.CreateEntity(typeof(ObstacleTagComponent), typeof(ObstacleStateComponent),
                 typeof(ObstacleDestructibleTagComponent));

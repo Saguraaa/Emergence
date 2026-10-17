@@ -11,5 +11,6 @@ namespace Emergence.Gameplay.Environment
         // TopDown: XY moves the ground projection, Z changes Height. SideView: XY moves on the map.
         public float3 WindVelocity;
         public float Gravity;
+        public float MaximumHeight;
     }
 }

@@ -24,6 +24,9 @@ ObstacleView 的 SpriteRenderer 可空；未配置时只注册碰撞，不启用
 `obstacleHeight` 表示从地面起的障碍高度（默认 1），初始化写入 ObstacleHeightComponent。
 玩家 Height 小于或等于障碍高度时阻挡，超过顶部时通过；所有形态使用同一规则。
 Height 为独立游戏高度，不从精灵位置、Collider2D 尺寸或 Transform.z 推导。
+EnvironmentBootstrap.maximumHeight 配置俯视场景的最高高度，初始化写入 EnvironmentComponent；默认 float.MaxValue 保留旧场景行为。
+PlayerSystem 把该上限连同期望高度位移交给 PhysicsSystem.Move，物理系统将高度约束在 0～maximumHeight，并清除受阻的垂直 Velocity。
+气态的 Height 只由 WindVelocity.z 驱动，W/S 只改变地面 XY；到达上限后仍可移动地面投影。侧视模式继续使用地图 Collider 限制顶部。
 每步先在起点约束高度，再使用允许高度处理 XY 移动、穿透修正和接触收集。
 下降时若地面投影与障碍重叠，则停在顶部上方的小量容差处，垂直 Velocity 清零；横向移出后继续下降。
 这仅限制下降，不引入站立或平台状态。每次下降最多增加一次附近查询，复用原有集合。

@@ -12,6 +12,7 @@ namespace Emergence.Bootstrap
         [Header("TopDown: XY map / Z height; SideView: XY map")]
         [SerializeField] private Vector3 windVelocity = new(0, 0, 1);
         [SerializeField, Min(0)] private float gravity = 9.81f;
+        [SerializeField, Min(0)] private float maximumHeight = float.MaxValue;
         private World world;
         private Entity environment;
 
@@ -22,6 +23,8 @@ namespace Emergence.Bootstrap
                 throw new InvalidOperationException(name + ": movementMode is invalid.");
             if (!math.all(math.isfinite((float3)windVelocity)) || !math.isfinite(gravity) || gravity < 0)
                 throw new InvalidOperationException(name + ": wind must be finite; gravity must be finite and nonnegative.");
+            if (!math.isfinite(maximumHeight) || maximumHeight < 0)
+                throw new InvalidOperationException(name + ": maximumHeight must be finite and nonnegative.");
             world = World.DefaultGameObjectInjectionWorld;
             if (world == null || !world.IsCreated) throw new InvalidOperationException("Default ECS World is unavailable.");
             var manager = world.EntityManager;
@@ -32,7 +35,7 @@ namespace Emergence.Bootstrap
             environment = manager.CreateEntity(typeof(EnvironmentComponent));
             manager.SetComponentData(environment, new EnvironmentComponent
             {
-                MovementMode = movementMode, WindVelocity = windVelocity, Gravity = gravity
+                MovementMode = movementMode, WindVelocity = windVelocity, Gravity = gravity, MaximumHeight = maximumHeight
             });
         }
 

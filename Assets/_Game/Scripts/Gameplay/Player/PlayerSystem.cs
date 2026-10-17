@@ -111,7 +111,7 @@ namespace Emergence.Gameplay.Player
                     verticalVelocity = desiredMotion.Velocity.z;
                 }
                 var movement = physics.Move(entity, position.ValueRO.XY, displacement, velocity, (int)form.ValueRO.Value,
-                    height, heightDisplacement, verticalVelocity);
+                    height, heightDisplacement, verticalVelocity, environment.MaximumHeight);
                 position.ValueRW.XY += movement.Displacement;
                 position.ValueRW.Height = movement.Height;
                 motion.ValueRW.Velocity = new float3(movement.Velocity, movement.VerticalVelocity);

@@ -23,6 +23,7 @@ namespace Emergence.Gameplay.Interaction
     public struct InteractionRequirementComponent : IComponentData
     {
         public float MinimumHeight;
+        public float MaximumHeight;
         public InteractionForms AllowedForms;
     }
 

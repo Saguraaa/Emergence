@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2122cf98cc1e4c308eed2f88e3510dd4, type: 3}
   m_Name: PlayerGasConfig
   m_EditorClassIdentifier: Assembly-CSharp::Emergence.Gameplay.Player.PlayerGasConfig
-  MoveVelocityMagnitude: 1
+  MoveVelocityMagnitude: 2

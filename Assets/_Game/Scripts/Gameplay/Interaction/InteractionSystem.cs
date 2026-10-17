@@ -26,6 +26,7 @@ namespace Emergence.Gameplay.Interaction
                     var position = SystemAPI.GetComponent<PlayerPositionComponent>(overlap.Entity);
                     var form = SystemAPI.GetComponent<PlayerFormComponent>(overlap.Entity).Value;
                     if (position.Height < requirement.ValueRO.MinimumHeight ||
+                        position.Height > requirement.ValueRO.MaximumHeight ||
                         (requirement.ValueRO.AllowedForms & (InteractionForms)(1 << (int)form)) == 0) continue;
                     occupied = true;
                     pressed |= SystemAPI.GetComponent<PlayerInputComponent>(overlap.Entity).InteractPressed;

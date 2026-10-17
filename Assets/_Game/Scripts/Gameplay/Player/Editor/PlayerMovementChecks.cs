@@ -50,7 +50,7 @@ namespace Emergence.Gameplay.Player.Editor
                     manager.SetComponentData(player, new PlayerInputComponent());
                     manager.SetComponentData(environment, new EnvironmentComponent
                     {
-                        WindVelocity = new float3(0, 0, 1), Gravity = 10
+                        WindVelocity = new float3(0, 0, 1), Gravity = 10, MaximumHeight = float.MaxValue
                     });
                 }
                 void Tick(int count, float2 direction, float dt = 1f / 60)
@@ -98,7 +98,10 @@ namespace Emergence.Gameplay.Player.Editor
                 Reset(PlayerFormKind.Gas);
                 Tick(60, float2.zero);
                 Check(math.length(Position().XY) == 0 && math.abs(Position().Height - 1) < .001f, "Default gas rises without map movement");
-                manager.SetComponentData(environment, new EnvironmentComponent { WindVelocity = new float3(2, -1, .5f), Gravity = 10 });
+                manager.SetComponentData(environment, new EnvironmentComponent
+                {
+                    WindVelocity = new float3(2, -1, .5f), Gravity = 10, MaximumHeight = float.MaxValue
+                });
                 Tick(60, new float2(1, 0));
                 Check(math.distance(Position().XY, new float2(3, -1)) < .001f && math.abs(Position().Height - 1.5f) < .001f, "Gas input combines with environment wind");
 
@@ -152,7 +155,10 @@ namespace Emergence.Gameplay.Player.Editor
                 Check(Position().XY.x > 3.9f && Position().Height == 0 && Velocity().z == 0,
                     "Liquid moves off obstacle and resumes falling to ground");
                 Reset(PlayerFormKind.Gas, 2);
-                manager.SetComponentData(environment, new EnvironmentComponent { WindVelocity = new float3(0, 0, -4), Gravity = 10 });
+                manager.SetComponentData(environment, new EnvironmentComponent
+                {
+                    WindVelocity = new float3(0, 0, -4), Gravity = 10, MaximumHeight = float.MaxValue
+                });
                 Tick(60, float2.zero);
                 Check(Position().Height > 1 && Position().Height < 1.01f && Velocity().z == 0,
                     "Downward wind uses the same height constraint");
@@ -183,7 +189,7 @@ namespace Emergence.Gameplay.Player.Editor
                     manager.SetComponentData(environment, new EnvironmentComponent
                     {
                         MovementMode = MapMovementMode.SideView,
-                        WindVelocity = new float3(0, 1, 0), Gravity = 10
+                        WindVelocity = new float3(0, 1, 0), Gravity = 10, MaximumHeight = float.MaxValue
                     });
                 }
 
@@ -233,7 +239,7 @@ namespace Emergence.Gameplay.Player.Editor
                 manager.SetComponentData(environment, new EnvironmentComponent
                 {
                     MovementMode = MapMovementMode.SideView,
-                    WindVelocity = new float3(2, -1, 0), Gravity = 10
+                    WindVelocity = new float3(2, -1, 0), Gravity = 10, MaximumHeight = float.MaxValue
                 });
                 Tick(60, new float2(1, 1));
                 Check(math.distance(Position().XY, new float2(3, 0)) < .001f,

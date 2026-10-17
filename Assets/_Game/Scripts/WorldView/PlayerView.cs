@@ -16,6 +16,8 @@ namespace Emergence.WorldView
         [SerializeField] private Transform damageFieldRoot;
         [SerializeField] private MeshRenderer damageFieldOutline;
         [SerializeField] private ParticleSystem damageFieldParticles;
+        [Tooltip("主体显示锚点的场景 Y 上限；与 ECS 的实际高度独立。")]
+        [SerializeField] private float maximumDisplayY = float.MaxValue;
         private Vector3 solidScale;
         private Vector3 gasScale;
         private Vector3 gasPosition;
@@ -29,6 +31,8 @@ namespace Emergence.WorldView
         private Vector3 bodyScale;
         private float respawnStarted = float.NegativeInfinity;
 
+        public float MaximumDisplayY => maximumDisplayY;
+
         public void PlayRespawn()
         {
             respawnStarted = Time.time;
@@ -39,6 +43,8 @@ namespace Emergence.WorldView
         public void Initialize(PlayerFormKind form)
         {
             // 校验
+            if (!math.isfinite(maximumDisplayY))
+                throw new System.InvalidOperationException(name + ": PlayerView.maximumDisplayY must be finite.");
             if (bodyRoot == null) throw new MissingReferenceException(name + ": PlayerView.bodyRoot is required.");
             if (solidBody == null) throw new MissingReferenceException(name + ": PlayerView.solidBody is required.");
             if (liquidBody == null) throw new MissingReferenceException(name + ": PlayerView.liquidBody is required.");
@@ -113,7 +119,7 @@ namespace Emergence.WorldView
             DamageFieldComponent damageField, bool showDamageField)
         {
             transform.position = new(position.XY.x, position.XY.y, transform.position.z);
-            bodyRoot.localPosition = new(0, position.Height, 0);
+            bodyRoot.localPosition = new(0, GetDisplayPosition(position).y - position.XY.y, 0);
             // 0.6 秒由小放大并轻微弹起，仅缩放表现节点。
             float progress = Mathf.Clamp01((Time.time - respawnStarted) / 0.6f);
             float scale = progress >= 1 ? 1 : Mathf.Lerp(0.15f, 1, progress) + Mathf.Sin(progress * Mathf.PI) * 0.2f;
@@ -141,6 +147,9 @@ namespace Emergence.WorldView
         }
 
         public void HideDamageField() => damageFieldRoot.gameObject.SetActive(false);
+
+        public Vector2 GetDisplayPosition(PlayerPositionComponent position) =>
+            new(position.XY.x, Mathf.Min(position.XY.y + position.Height, maximumDisplayY));
 
         public void Shutdown()
         {
