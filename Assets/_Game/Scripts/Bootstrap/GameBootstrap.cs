@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Entities;
 using Emergence.Gameplay.InteractCallback;
+using Emergence.Gameplay.Save;
 
 namespace Emergence.Bootstrap
 {
@@ -14,6 +15,7 @@ namespace Emergence.Bootstrap
         [SerializeField] private InteractionBootstrap[] interactionBootstraps = new InteractionBootstrap[0];
         [SerializeField] private RespawnBootstrap[] respawnBootstraps = new RespawnBootstrap[0];
         [SerializeField] private NPCBootstrap[] npcBootstraps = new NPCBootstrap[0];
+        [SerializeField] private SettingsBootstrap settingsBootstrap;
         private World world;
 
         // 总入口仅启动一次，各门控不再维护防重复初始化状态。
@@ -57,12 +59,15 @@ namespace Emergence.Bootstrap
             playerBootstrap.Initialize(inputSettings);
             foreach (var npcBootstrap in npcBootstraps) npcBootstrap.Initialize();
             foreach (var cameraBootstrap in cameraBootstraps) cameraBootstrap.Initialize();
+            if (settingsBootstrap != null) settingsBootstrap.Initialize(inputSettings);
             SceneTransferSystem.Complete(world, gameObject.scene.path);
+            LevelProgressSystem.EnterLevel(world.EntityManager, gameObject.scene.path);
         }
 
         private void Shutdown()
         {
             // 先停止玩家访问，再释放环境和输入；错误直接交给 Unity 报告。
+            if (settingsBootstrap != null) settingsBootstrap.Shutdown();
             for (int i = cameraBootstraps.Length - 1; i >= 0; i--) cameraBootstraps[i].Shutdown();
             for (int i = npcBootstraps.Length - 1; i >= 0; i--) npcBootstraps[i].Shutdown();
             playerBootstrap.Shutdown();

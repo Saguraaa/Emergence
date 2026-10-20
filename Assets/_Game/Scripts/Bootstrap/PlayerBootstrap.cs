@@ -4,6 +4,7 @@ using Emergence.Gameplay.InteractCallback;
 using Emergence.Gameplay.Physics;
 using Emergence.UI.Input;
 using Emergence.Gameplay.Player;
+using Emergence.Gameplay.Save;
 using Emergence.WorldView;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -100,6 +101,7 @@ namespace Emergence.Bootstrap
                 player = players.GetSingletonEntity();
                 SceneTransferSystem.Arrive(world, player, gameObject.scene);
             }
+            LevelProgressSystem.ApplyLoadedSpawn(manager, player, gameObject.scene.path);
             int shape = (int)manager.GetComponentData<PlayerFormComponent>(player).Value;
             physics.RegisterBody(player, physicsBody, new Collider2D[] { solidCollider, liquidCollider, gasCollider }, collisionLayers, shape);
             controller.Initialize(world, player, playerView, inputSettings);

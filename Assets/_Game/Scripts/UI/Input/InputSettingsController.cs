@@ -11,8 +11,12 @@ namespace Emergence.UI.Input
         private const string SaveKey = "Emergence.Player.Bindings.v1";
         private InputActionAsset runtimeActions;
         private InputActionRebindingExtensions.RebindingOperation rebind;
+        private InputActionMap rebindActionMap;
+        private bool rebindMapWasEnabled;
 
         public bool IsRebinding { get; private set; }
+        public int LastRebindEndFrame { get; private set; } = -1;
+        public InputActionAsset RuntimeActions => runtimeActions;
         public event Action BindingsChanged;
 
         public void Initialize()
@@ -38,6 +42,14 @@ namespace Emergence.UI.Input
         }
 
         public int GetBindingCount(InputActionReference action) => GetAction(action).bindings.Count;
+        public bool SetActionMapEnabled(InputActionReference reference, bool enabled)
+        {
+            var map = GetAction(reference).actionMap;
+            bool wasEnabled = map.enabled;
+            if (enabled) map.Enable();
+            else map.Disable();
+            return wasEnabled;
+        }
         public InputBinding GetBinding(InputActionReference action, int index) => GetAction(action).bindings[index];
         public string GetBindingDisplayString(InputActionReference action, int index) =>
             GetAction(action).GetBindingDisplayString(index);
@@ -50,11 +62,15 @@ namespace Emergence.UI.Input
             if (bindingIndex < 0 || bindingIndex >= action.bindings.Count || action.bindings[bindingIndex].isComposite)
                 throw new ArgumentOutOfRangeException(nameof(bindingIndex), "Select a binding or composite part.");
             CancelRebind();
-            runtimeActions.Disable();
+            rebindActionMap = action.actionMap;
+            rebindMapWasEnabled = rebindActionMap.enabled;
+            rebindActionMap.Disable();
             rebind = action.PerformInteractiveRebinding(bindingIndex)
                 .WithCancelingThrough("<Keyboard>/escape")
                 .OnCancel(_ => FinishRebind(false))
                 .OnComplete(_ => FinishRebind(true));
+            if (action.bindings[bindingIndex].path.StartsWith("<Keyboard>/", StringComparison.Ordinal))
+                rebind.WithControlsHavingToMatchPath("<Keyboard>");
             IsRebinding = true;
             rebind.Start();
         }
@@ -66,8 +82,10 @@ namespace Emergence.UI.Input
             rebind.Dispose();
             rebind = null;
             IsRebinding = false;
+            LastRebindEndFrame = Time.frameCount;
             if (save) SaveBindings();
-            if (isActiveAndEnabled) runtimeActions.Enable();
+            if (isActiveAndEnabled && rebindMapWasEnabled) rebindActionMap.Enable();
+            rebindActionMap = null;
             BindingsChanged?.Invoke();
         }
 
